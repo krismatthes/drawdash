@@ -1,0 +1,218 @@
+-- DrawDash Database Schema
+-- This schema defines the database structure for the raffle/draw site
+
+-- Users table for authentication and user management
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    date_of_birth DATE,
+    is_verified BOOLEAN DEFAULT false,
+    is_admin BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- User addresses for billing/shipping
+CREATE TABLE user_addresses (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type VARCHAR(20) NOT NULL, -- 'billing', 'shipping'
+    line1 VARCHAR(255) NOT NULL,
+    line2 VARCHAR(255),
+    city VARCHAR(100) NOT NULL,
+    postcode VARCHAR(20) NOT NULL,
+    country VARCHAR(2) DEFAULT 'GB',
+    is_default BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Raffles/draws table
+CREATE TABLE raffles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    image_url VARCHAR(500),
+    ticket_price DECIMAL(10,2) NOT NULL,
+    total_tickets INTEGER NOT NULL,
+    sold_tickets INTEGER DEFAULT 0,
+    start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    end_date TIMESTAMP NOT NULL,
+    status VARCHAR(20) DEFAULT 'upcoming', -- 'upcoming', 'active', 'ended', 'cancelled'
+    winner_user_id UUID REFERENCES users(id),
+    winner_ticket_number INTEGER,
+    winner_drawn_at TIMESTAMP,
+    created_by UUID NOT NULL REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Raffle prizes
+CREATE TABLE raffle_prizes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    raffle_id UUID NOT NULL REFERENCES raffles(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    value DECIMAL(12,2) NOT NULL,
+    image_url VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Raffle entries/tickets
+CREATE TABLE raffle_entries (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    raffle_id UUID NOT NULL REFERENCES raffles(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    quantity INTEGER NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    payment_intent_id VARCHAR(255), -- Stripe payment intent ID
+    payment_status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'completed', 'failed', 'refunded'
+    ticket_numbers INTEGER[] NOT NULL, -- Array of ticket numbers assigned
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT positive_quantity CHECK (quantity > 0),
+    CONSTRAINT positive_amount CHECK (total_amount > 0)
+);
+
+-- Payment transactions
+CREATE TABLE payments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id),
+    raffle_entry_id UUID REFERENCES raffle_entries(id),
+    payment_intent_id VARCHAR(255) UNIQUE NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    currency VARCHAR(3) DEFAULT 'GBP',
+    status VARCHAR(20) NOT NULL, -- 'pending', 'succeeded', 'failed', 'cancelled', 'refunded'
+    payment_method_id VARCHAR(255),
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- User sessions for authentication
+CREATE TABLE user_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    session_token VARCHAR(255) UNIQUE NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Email verification tokens
+CREATE TABLE verification_tokens (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(255) UNIQUE NOT NULL,
+    type VARCHAR(20) NOT NULL, -- 'email_verification', 'password_reset'
+    expires_at TIMESTAMP NOT NULL,
+    used_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- System settings/configuration
+CREATE TABLE system_settings (
+    key VARCHAR(100) PRIMARY KEY,
+    value JSONB NOT NULL,
+    description TEXT,
+    updated_by UUID REFERENCES users(id),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Audit log for admin actions
+CREATE TABLE audit_log (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id),
+    action VARCHAR(100) NOT NULL,
+    resource_type VARCHAR(50) NOT NULL,
+    resource_id VARCHAR(255),
+    details JSONB,
+    ip_address INET,
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for better performance
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_raffles_status ON raffles(status);
+CREATE INDEX idx_raffles_end_date ON raffles(end_date);
+CREATE INDEX idx_raffle_entries_raffle_id ON raffle_entries(raffle_id);
+CREATE INDEX idx_raffle_entries_user_id ON raffle_entries(user_id);
+CREATE INDEX idx_raffle_entries_payment_status ON raffle_entries(payment_status);
+CREATE INDEX idx_payments_payment_intent_id ON payments(payment_intent_id);
+CREATE INDEX idx_payments_status ON payments(status);
+CREATE INDEX idx_user_sessions_token ON user_sessions(session_token);
+CREATE INDEX idx_user_sessions_user_id ON user_sessions(user_id);
+CREATE INDEX idx_verification_tokens_token ON verification_tokens(token);
+CREATE INDEX idx_verification_tokens_user_id ON verification_tokens(user_id);
+
+-- Function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Triggers to automatically update updated_at
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_raffles_updated_at BEFORE UPDATE ON raffles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_payments_updated_at BEFORE UPDATE ON payments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Function to automatically assign ticket numbers
+CREATE OR REPLACE FUNCTION assign_ticket_numbers()
+RETURNS TRIGGER AS $$
+DECLARE
+    next_ticket INTEGER;
+    tickets INTEGER[];
+    i INTEGER;
+BEGIN
+    -- Get the next available ticket number for this raffle
+    SELECT COALESCE(MAX(unnest(ticket_numbers)), 0) + 1
+    INTO next_ticket
+    FROM raffle_entries
+    WHERE raffle_id = NEW.raffle_id;
+    
+    -- If no tickets exist yet, start from 1
+    IF next_ticket IS NULL THEN
+        next_ticket := 1;
+    END IF;
+    
+    -- Generate array of consecutive ticket numbers
+    tickets := ARRAY[]::INTEGER[];
+    FOR i IN 0..(NEW.quantity - 1) LOOP
+        tickets := array_append(tickets, next_ticket + i);
+    END LOOP;
+    
+    -- Assign the ticket numbers
+    NEW.ticket_numbers := tickets;
+    
+    -- Update sold tickets count on raffle
+    UPDATE raffles 
+    SET sold_tickets = sold_tickets + NEW.quantity,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = NEW.raffle_id;
+    
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Trigger to assign ticket numbers on insert
+CREATE TRIGGER assign_ticket_numbers_trigger
+    BEFORE INSERT ON raffle_entries
+    FOR EACH ROW EXECUTE FUNCTION assign_ticket_numbers();
+
+-- Insert some default system settings
+INSERT INTO system_settings (key, value, description) VALUES
+('site_name', '"DrawDash"', 'Site name displayed in header and meta tags'),
+('contact_email', '"support@drawdash.com"', 'Contact email for customer support'),
+('min_ticket_price', '0.50', 'Minimum allowed ticket price in GBP'),
+('max_ticket_price', '100.00', 'Maximum allowed ticket price in GBP'),
+('max_tickets_per_purchase', '50', 'Maximum number of tickets a user can buy in one transaction'),
+('payment_provider', '"stripe"', 'Payment provider (stripe, paypal, etc.)'),
+('facebook_page_url', '"https://facebook.com/drawdash"', 'Facebook page URL for live draws'),
+('terms_version', '"1.0"', 'Current version of terms and conditions'),
+('privacy_version', '"1.0"', 'Current version of privacy policy');
