@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Header from '@/components/Header'
@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { getUserEntries, getUserWinnings, getUserStats, UserEntry, UserWinning, UserStats } from '@/lib/mockUserData'
 
-export default function AccountPage() {
+function AccountContent() {
   const { user, isAuthenticated, isLoading } = useAuth()
   const { t } = useLanguage()
   const router = useRouter()
@@ -438,5 +438,23 @@ export default function AccountPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AccountPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Indlæser konto...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <AccountContent />
+    </Suspense>
   )
 }

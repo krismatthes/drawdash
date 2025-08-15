@@ -30,7 +30,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }
 
   const t = (key: TranslationKey): string => {
-    return translations[language][key] || key
+    const value = translations[language][key]
+    if (Array.isArray(value)) {
+      return value.join('\n')
+    }
+    return value || String(key)
   }
 
   return (

@@ -58,7 +58,7 @@ export const translations = {
     termsConditions: 'Ved at deltage i denne lodtrækning accepterer du vores Vilkår & Betingelser',
     
     // How It Works Steps
-    howItWorks: 'Sådan Fungerer Det',
+    howItWorksSteps: 'Sådan Fungerer Det',
     step1: 'Vælg hvor mange billetter du vil købe',
     step2: 'Gennemfør dit køb sikkert',
     step3: 'Vent på lodtrækningen når timeren udløber',
@@ -250,7 +250,7 @@ export const translations = {
     termsConditions: 'By entering this raffle, you agree to our Terms & Conditions',
     
     // How It Works Steps
-    howItWorks: 'How It Works',
+    howItWorksSteps: 'How It Works',
     step1: 'Choose how many tickets you want to purchase',
     step2: 'Complete your purchase securely',
     step3: 'Wait for the draw when the timer expires',
