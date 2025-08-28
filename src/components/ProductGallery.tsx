@@ -25,7 +25,7 @@ export default function ProductGallery({ images, title, className = '' }: Produc
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Main Image Display */}
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200">
+      <div className="relative h-[400px] overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200">
         {isMounted && (
           <motion.div
             key={selectedImage}

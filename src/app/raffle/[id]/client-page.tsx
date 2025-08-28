@@ -88,7 +88,7 @@ Held og lykke! Du kan se alle dine deltagelser på din konto side.`
       
       <main className="relative">
         {/* WOW Hero Section */}
-        <div className="relative h-[70vh] overflow-hidden">
+        <div className="relative h-[65vh] overflow-hidden">
           {/* Background Image */}
           <div className="absolute inset-0">
             <Image
@@ -251,8 +251,13 @@ Held og lykke! Du kan se alle dine deltagelser på din konto side.`
           </motion.div>
         </div>
 
+        {/* Smooth Transition Section */}
+        <div className="relative -mt-16 z-10">
+          <div className="bg-gradient-to-b from-transparent via-white/40 to-white h-24"></div>
+        </div>
+
         {/* Main Content Grid */}
-        <div className="max-w-7xl mx-auto px-4 pb-12">
+        <div className="max-w-7xl mx-auto px-4 pb-12 relative z-10 -mt-8">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             
             {/* Left: Product Gallery (60%) */}
@@ -261,6 +266,7 @@ Held og lykke! Du kan se alle dine deltagelser på din konto side.`
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
+                className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg"
               >
                 <ProductGallery 
                   images={[raffle.image]} 
@@ -313,102 +319,69 @@ Held og lykke! Du kan se alle dine deltagelser på din konto side.`
             {/* Right: PROMINENT Action Panel (40%) */}
             <div className="lg:col-span-2">
               <motion.div
-                className="lg:sticky lg:top-8 space-y-6 mobile-safe-area"
+                className="lg:sticky lg:top-8 space-y-8 mobile-safe-area"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                {/* MEGA Purchase Card */}
-                <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200 rounded-2xl p-6 shadow-2xl">
+                {/* Status & Progress Card */}
+                <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200 rounded-2xl p-6 shadow-xl">
                   
                   {/* Urgency Header */}
                   <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white p-4 rounded-xl mb-6 text-center">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                      <div className="w-3 h-3 bg-white rounded-full animate-pulse" />
-                      <span className="font-bold text-lg">KUN {raffle.totalTickets - raffle.soldTickets} BILLETTER TILBAGE!</span>
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                      <span className="font-bold text-sm">KUN {raffle.totalTickets - raffle.soldTickets} TILBAGE!</span>
                     </div>
-                    <div className="text-sm opacity-90">⚡ Handl nu før de sælger ud!</div>
+                    <div className="text-xs opacity-90">⚡ {Math.round(progressPercentage)}% solgt</div>
                   </div>
 
-                  {/* Prize Highlight */}
-                  <div className="text-center mb-6 bg-white/80 rounded-xl p-4 border-2 border-dashed border-orange-300">
-                    <div className="text-sm font-semibold text-orange-600 mb-1 uppercase tracking-wide">
-                      🏆 DU VINDER
-                    </div>
-                    <div className="text-2xl font-black text-slate-900 mb-2">{raffle.title}</div>
-                    <div className="text-4xl font-black bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
+                  {/* Prize Display */}
+                  <div className="text-center mb-6">
+                    <div className="text-sm font-semibold text-orange-600 mb-3">🏆 VIND</div>
+                    <div className="text-xl font-black text-slate-900 mb-3">{raffle.title}</div>
+                    <div className="text-3xl font-black bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent mb-4">
                       {raffle.prize.value.toLocaleString('da-DK')} kr
+                    </div>
+                    
+                    {/* Progress Ring */}
+                    <div className="flex items-center justify-center mb-3">
+                      <ProgressRing 
+                        progress={progressPercentage}
+                        size="md"
+                        label="Solgt"
+                        showValue={false}
+                      />
+                    </div>
+                    <div className="text-sm font-bold text-slate-900">
+                      <SmoothCounter value={raffle.soldTickets} /> / {raffle.totalTickets}
                     </div>
                   </div>
 
                   {/* Countdown Timer */}
-                  <div className="text-center mb-6 bg-slate-900 text-white rounded-xl p-4">
-                    <div className="text-sm font-semibold mb-2 text-orange-400">⏰ LODTRÆKNING SLUTTER I:</div>
+                  <div className="text-center bg-slate-900 text-white rounded-xl p-4">
+                    <div className="text-xs font-semibold mb-2 text-orange-400">⏰ SLUTTER I:</div>
                     <CountdownTimer endDate={raffle.endDate} />
                   </div>
-
-                  {/* Live Progress */}
-                  <div className="mb-6">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-semibold text-slate-700">Live Progress</span>
-                      <span className="text-sm font-bold text-orange-600">{Math.round(progressPercentage)}% solgt</span>
-                    </div>
-                    <div className="flex items-center justify-center mb-4">
-                      <ProgressRing 
-                        progress={progressPercentage}
-                      size="lg"
-                      label="Solgt"
-                      showValue={true}
-                    />
-                  </div>
-
-                  <div className="text-center space-y-1">
-                    <div className="text-2xl font-bold text-slate-900">
-                      <SmoothCounter value={raffle.soldTickets} /> / {raffle.totalTickets}
-                    </div>
-                    <div className="text-sm text-slate-600">
-                      {raffle.totalTickets - raffle.soldTickets} billetter tilbage
-                    </div>
-                  </div>
                 </div>
 
-                  {/* Social Proof */}
-                  <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="flex -space-x-2">
-                        {[...Array(5)].map((_, i) => (
-                          <div key={i} className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-semibold">
-                            {String.fromCharCode(65 + i)}
-                          </div>
-                        ))}
-                      </div>
-                      <div>
-                        <div className="text-sm font-semibold text-green-800">
-                          +{raffle.participants} andre deltager lige nu!
-                        </div>
-                        <div className="text-xs text-green-600">23 billetter købt i de sidste 2 timer</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* MASSIVE Purchase Panel */}
-                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border-4 border-orange-300 rounded-2xl p-8 shadow-2xl">
+                {/* Purchase Panel */}
+                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border-3 border-orange-300 rounded-2xl p-6 shadow-xl">
                   <div className="text-center mb-6">
-                    <div className="text-3xl font-black text-orange-600 mb-2">🎯 KØB BILLETTER NU!</div>
-                    <div className="text-sm text-orange-700 font-semibold">Mere end 70% solgt - handl hurtigt!</div>
+                    <div className="text-2xl font-black text-orange-600 mb-2">🎯 KØB BILLETTER</div>
+                    <div className="text-sm text-orange-700 font-semibold">Handl hurtigt!</div>
                   </div>
                   
                   {/* Quick Select Buttons */}
-                  <div className="grid grid-cols-4 gap-2 mb-6">
+                  <div className="grid grid-cols-4 gap-3 mb-6">
                     {[1, 5, 10, 25].map((qty) => (
                       <button
                         key={qty}
                         onClick={() => setTicketQuantity(qty)}
-                        className={`py-3 px-2 rounded-xl font-bold text-sm transition-all transform hover:scale-105 ${
+                        className={`py-3 px-3 rounded-xl font-bold text-sm transition-all ${
                           ticketQuantity === qty
-                            ? 'bg-orange-500 text-white shadow-lg'
-                            : 'bg-white border-2 border-orange-200 text-orange-600 hover:border-orange-400'
+                            ? 'bg-orange-500 text-white shadow-md scale-105'
+                            : 'bg-white border border-orange-200 text-orange-600 hover:border-orange-400 hover:scale-105'
                         }`}
                       >
                         {qty} stk
@@ -416,82 +389,57 @@ Held og lykke! Du kan se alle dine deltagelser på din konto side.`
                     ))}
                   </div>
 
-                  {/* Custom Ticket Selector */}
+                  {/* Ticket Selector */}
                   <div className="mb-6">
-                    <label className="block text-sm font-bold text-orange-700 mb-3 text-center">
-                      📊 VÆLG ANTAL BILLETTER (mere = bedre chance!)
-                    </label>
-                    <div className="flex items-center justify-center bg-white rounded-2xl p-6 border-2 border-orange-200 shadow-inner">
+                    <div className="flex items-center justify-center bg-white rounded-2xl p-4 border-2 border-orange-200">
                       <motion.button
                         onClick={() => setTicketQuantity(Math.max(1, ticketQuantity - 1))}
-                        className="w-16 h-16 rounded-2xl bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-lg hover:shadow-xl transition-all font-bold text-2xl disabled:opacity-50"
+                        className="w-10 h-10 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-lg disabled:opacity-50"
                         disabled={ticketQuantity <= 1}
                         whileTap={{ scale: 0.95 }}
-                        whileHover={{ scale: 1.05 }}
                       >
                         −
                       </motion.button>
-                      <div className="flex-1 mx-6 text-center">
+                      <div className="flex-1 mx-4 text-center">
                         <input
                           type="number"
                           value={ticketQuantity}
                           onChange={(e) => setTicketQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                          className="w-24 bg-transparent text-center text-5xl font-black text-orange-600 border-none outline-none"
+                          className="w-16 bg-transparent text-center text-3xl font-black text-orange-600 border-none outline-none"
                           min="1"
                         />
                         <div className="text-sm text-orange-500 font-semibold mt-1">billetter</div>
                       </div>
                       <motion.button
                         onClick={() => setTicketQuantity(ticketQuantity + 1)}
-                        className="w-16 h-16 rounded-2xl bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-lg hover:shadow-xl transition-all font-bold text-2xl"
+                        className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-blue-500 text-white font-bold text-lg"
                         whileTap={{ scale: 0.95 }}
-                        whileHover={{ scale: 1.05 }}
                       >
                         +
                       </motion.button>
                     </div>
                   </div>
 
-                  {/* Win Chance Calculator */}
-                  <div className="bg-gradient-to-r from-green-100 to-blue-100 rounded-xl p-4 mb-6 border-2 border-green-200">
-                    <div className="text-center">
-                      <div className="text-sm font-semibold text-green-700 mb-1">🎯 DIN VINDCHANCE:</div>
-                      <div className="text-3xl font-black text-green-600">
-                        {((ticketQuantity / raffle.totalTickets) * 100).toFixed(2)}%
-                      </div>
-                      <div className="text-xs text-green-600">
-                        {ticketQuantity} af {raffle.totalTickets} billetter = Bedre chance!
+                  {/* Win Chance & Price */}
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="bg-gradient-to-r from-green-100 to-blue-100 rounded-xl p-4 border border-green-200 text-center">
+                      <div className="text-sm font-semibold text-green-700 mb-2">🎯 CHANCE</div>
+                      <div className="text-xl font-black text-green-600">
+                        {((ticketQuantity / raffle.totalTickets) * 100).toFixed(1)}%
                       </div>
                     </div>
-                  </div>
-
-                  {/* Price Summary */}
-                  <div className="bg-white rounded-xl p-6 mb-6 border-2 border-orange-200 shadow-inner">
-                    <div className="flex justify-between items-center mb-2">
-                      <div>
-                        <div className="font-bold text-slate-900 text-lg">💰 Total pris</div>
-                        <div className="text-sm text-slate-600">
-                          {ticketQuantity} billet{ticketQuantity > 1 ? 'ter' : ''} × {raffle.ticketPrice} kr
-                        </div>
-                      </div>
-                      <div className="text-3xl font-bold text-gradient">
-                        <SmoothCounter value={totalCost} format="currency" />
+                    <div className="bg-white rounded-xl p-4 border-2 border-orange-200 text-center">
+                      <div className="text-sm font-bold text-slate-600 mb-2">💰 PRIS</div>
+                      <div className="text-xl font-bold text-slate-900">
+                        {(ticketQuantity * raffle.ticketPrice).toLocaleString('da-DK')} kr
                       </div>
                     </div>
                   </div>
 
                   {/* Login Required Notice */}
                   {!isAuthenticated && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
-                      <div className="flex items-start gap-3">
-                        <div className="text-amber-600 text-xl">⚠️</div>
-                        <div>
-                          <h4 className="font-semibold text-amber-800 mb-1">Login påkrævet</h4>
-                          <p className="text-sm text-amber-700">
-                            Du skal logge ind eller oprette en konto for at deltage i lodtrækningen.
-                          </p>
-                        </div>
-                      </div>
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-center">
+                      <div className="text-sm text-amber-800 font-semibold">⚠️ Login påkrævet for at deltage</div>
                     </div>
                   )}
 
@@ -503,7 +451,7 @@ Held og lykke! Du kan se alle dine deltagelser på din konto side.`
                     iconPosition="left"
                     onClick={handlePurchase}
                     shimmer={isAuthenticated}
-                    className="w-full font-bold"
+                    className="w-full font-bold mb-4"
                   >
                     {isAuthenticated 
                       ? (raffle.isInstantWin ? '⚡ Spil Nu' : 'Deltag i Lodtrækning')
@@ -512,17 +460,17 @@ Held og lykke! Du kan se alle dine deltagelser på din konto side.`
                   </PremiumButton>
 
                   {/* Alternative Entry Link */}
-                  <div className="mt-4 text-center">
+                  <div className="text-center mb-4">
                     <a 
                       href="/free-entry" 
-                      className="text-xs text-slate-500 hover:text-slate-700 transition-colors underline"
+                      className="text-sm text-slate-500 hover:text-slate-700 transition-colors underline"
                     >
                       ⓘ Alternative deltagelsesmuligheder
                     </a>
                   </div>
 
-                  <p className="text-xs text-slate-400 mt-4 text-center">
-                    Ved deltagelse accepterer du vores vilkår og betingelser
+                  <p className="text-xs text-slate-400 text-center">
+                    Ved deltagelse accepterer du vores vilkår
                   </p>
                 </div>
 
