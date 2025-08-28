@@ -49,25 +49,22 @@ export default function PremiumHeader() {
           </Link>
           
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-1">
+          <nav className="hidden lg:flex items-center space-x-6">
             {[
-              { href: '/', label: t('home'), icon: '🏠' },
               { href: '/raffles', label: t('activeRaffles'), icon: '🎯', badge: 'HOT' },
-              { href: '/winners', label: t('winners'), icon: '🏆' },
-              { href: '/how-it-works', label: t('howItWorks'), icon: '❓' },
-              { href: '/faq', label: 'FAQ', icon: '💬' }
+              { href: '/winners', label: t('winners'), icon: '🏆' }
             ].map((item, index) => (
               <Link key={item.href} href={item.href}>
                 <motion.div
-                  className="relative px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-300 group hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50"
+                  className="relative px-6 py-3 rounded-xl font-semibold text-base transition-all duration-300 group hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="group-hover:scale-110 transition-transform duration-200">
+                  <div className="flex items-center gap-3">
+                    <span className="group-hover:scale-110 transition-transform duration-200 text-lg">
                       {item.icon}
                     </span>
                     <span className="text-slate-700 group-hover:text-slate-900">
@@ -76,7 +73,7 @@ export default function PremiumHeader() {
                   </div>
                   
                   {item.badge && (
-                    <div className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold animate-pulse">
+                    <div className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
                       {item.badge}
                     </div>
                   )}
@@ -88,18 +85,7 @@ export default function PremiumHeader() {
           </nav>
 
           {/* Right Side */}
-          <div className="hidden lg:flex items-center space-x-4">
-            
-            {/* Live Indicator */}
-            <motion.div 
-              className="flex items-center gap-2 bg-gradient-to-r from-green-50 to-blue-50 px-3 py-2 rounded-xl border border-green-200"
-              animate={{ scale: [1, 1.02, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-xs font-semibold text-green-700">1,234 online</span>
-            </motion.div>
-
+          <div className="hidden lg:flex items-center space-x-6">
             <LanguageSwitcher />
             
             {isAuthenticated ? (
@@ -167,8 +153,7 @@ export default function PremiumHeader() {
                       animate={{ x: ['-100%', '100%'] }}
                       transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                     />
-                    <div className="relative flex items-center gap-2">
-                      <span>🚀</span>
+                    <div className="relative">
                       <span>Tilmeld Dig</span>
                     </div>
                   </motion.div>
@@ -206,11 +191,8 @@ export default function PremiumHeader() {
             >
               <div className="space-y-2">
                 {[
-                  { href: '/', label: t('home'), icon: '🏠' },
                   { href: '/raffles', label: t('activeRaffles'), icon: '🎯' },
-                  { href: '/winners', label: t('winners'), icon: '🏆' },
-                  { href: '/how-it-works', label: t('howItWorks'), icon: '❓' },
-                  { href: '/faq', label: 'FAQ', icon: '💬' }
+                  { href: '/winners', label: t('winners'), icon: '🏆' }
                 ].map((item, index) => (
                   <motion.div
                     key={item.href}
@@ -265,8 +247,7 @@ export default function PremiumHeader() {
                         <span>🔑</span>
                         <span>Log Ind</span>
                       </Link>
-                      <Link href="/register" className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-semibold">
-                        <span>🚀</span>
+                      <Link href="/register" className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-semibold">
                         <span>Tilmeld Dig</span>
                       </Link>
                     </div>
