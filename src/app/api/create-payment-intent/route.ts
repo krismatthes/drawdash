@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-07-30.basil',
-})
+// Initialize Stripe inside the function to avoid build-time evaluation
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key_for_build', {
+    apiVersion: '2025-07-30.basil',
+  })
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,6 +19,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const stripe = getStripe()
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency,
