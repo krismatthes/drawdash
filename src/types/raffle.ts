@@ -9,6 +9,10 @@ export interface Raffle {
   endDate: Date
   status: 'active' | 'ended' | 'upcoming'
   isInstantWin: boolean
+  participants: number
+  emoji?: string
+  category?: string
+  endsAt?: Date
   prize: {
     name: string
     value: number

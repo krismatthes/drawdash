@@ -1,6 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { loadStripe } from '@stripe/stripe-js'
+import {
+  Elements,
+  CardElement,
+  useStripe,
+  useElements
+} from '@stripe/react-stripe-js'
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 interface PaymentFormProps {
   amount: number
@@ -8,11 +17,18 @@ interface PaymentFormProps {
   onCancel: () => void
 }
 
-export default function PaymentForm({ amount, onSuccess, onCancel }: PaymentFormProps) {
+interface CheckoutFormProps {
+  amount: number
+  onSuccess: () => void
+  onCancel: () => void
+}
+
+function CheckoutForm({ amount, onSuccess, onCancel }: CheckoutFormProps) {
+  const stripe = useStripe()
+  const elements = useElements()
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string>('')
   const [formData, setFormData] = useState({
-    cardNumber: '',
-    expiry: '',
-    cvc: '',
     name: '',
     email: '',
     billingAddress: {
@@ -23,18 +39,71 @@ export default function PaymentForm({ amount, onSuccess, onCancel }: PaymentForm
       country: 'GB'
     }
   })
-  const [isProcessing, setIsProcessing] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsProcessing(true)
-
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000))
     
-    // Mock successful payment
-    setIsProcessing(false)
-    onSuccess()
+    if (!stripe || !elements) {
+      return
+    }
+
+    setIsProcessing(true)
+    setErrorMessage('')
+
+    const cardElement = elements.getElement(CardElement)
+    
+    if (!cardElement) {
+      setIsProcessing(false)
+      return
+    }
+
+    try {
+      // Create payment intent on the server
+      const response = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: amount * 100, // Convert to cents
+          currency: 'gbp',
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create payment intent')
+      }
+
+      const { clientSecret } = await response.json()
+
+      // Confirm payment
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            name: formData.name,
+            email: formData.email,
+            address: {
+              line1: formData.billingAddress.line1,
+              line2: formData.billingAddress.line2,
+              city: formData.billingAddress.city,
+              postal_code: formData.billingAddress.postcode,
+              country: formData.billingAddress.country,
+            },
+          },
+        },
+      })
+
+      if (error) {
+        setErrorMessage(error.message || 'Payment failed')
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        onSuccess()
+      }
+    } catch (error) {
+      setErrorMessage('Payment failed. Please try again.')
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   return (
@@ -56,46 +125,30 @@ export default function PaymentForm({ amount, onSuccess, onCancel }: PaymentForm
           </div>
         </div>
 
+        {errorMessage && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            {errorMessage}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Card Number
+              Card Details
             </label>
-            <input
-              type="text"
-              placeholder="1234 5678 9012 3456"
-              value={formData.cardNumber}
-              onChange={(e) => setFormData({...formData, cardNumber: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Expiry Date
-              </label>
-              <input
-                type="text"
-                placeholder="MM/YY"
-                value={formData.expiry}
-                onChange={(e) => setFormData({...formData, expiry: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                CVC
-              </label>
-              <input
-                type="text"
-                placeholder="123"
-                value={formData.cvc}
-                onChange={(e) => setFormData({...formData, cvc: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
+            <div className="p-3 border border-gray-300 rounded-md focus-within:ring-2 focus-within:ring-green-500">
+              <CardElement
+                options={{
+                  style: {
+                    base: {
+                      fontSize: '16px',
+                      color: '#424770',
+                      '::placeholder': {
+                        color: '#aab7c4',
+                      },
+                    },
+                  },
+                }}
               />
             </div>
           </div>
@@ -180,7 +233,7 @@ export default function PaymentForm({ amount, onSuccess, onCancel }: PaymentForm
             </button>
             <button
               type="submit"
-              disabled={isProcessing}
+              disabled={isProcessing || !stripe}
               className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50"
             >
               {isProcessing ? 'Processing...' : `Pay £${amount.toFixed(2)}`}
@@ -191,10 +244,18 @@ export default function PaymentForm({ amount, onSuccess, onCancel }: PaymentForm
         <div className="mt-4 text-center">
           <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
             <span>🔒 Secure Payment</span>
-            <span>256-bit SSL</span>
+            <span>Powered by Stripe</span>
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+export default function PaymentForm({ amount, onSuccess, onCancel }: PaymentFormProps) {
+  return (
+    <Elements stripe={stripePromise}>
+      <CheckoutForm amount={amount} onSuccess={onSuccess} onCancel={onCancel} />
+    </Elements>
   )
 }

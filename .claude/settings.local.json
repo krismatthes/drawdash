@@ -10,8 +10,29 @@
       "Bash(git init:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(gh auth:*)",
+      "Bash(rm:*)",
+      "Bash(npx localtunnel:*)",
+      "Bash(npm start)",
+      "Bash(lsof:*)",
+      "Bash(kill:*)",
+      "Bash(PORT=3001 npm start)",
+      "Bash(npx ngrok:*)",
+      "Bash(brew install:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(ssh-keygen:*)",
+      "Bash(cat:*)",
+      "Bash(ssh:*)",
+      "Bash(curl:*)",
+      "Bash(npm uninstall:*)"
     ],
-    "defaultMode": "acceptEdits"
+    "defaultMode": "acceptEdits",
+    "additionalDirectories": [
+      "/Users/kristianmatthes"
+    ]
   }
 }

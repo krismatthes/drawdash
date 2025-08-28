@@ -1,6 +1,7 @@
+import { motion } from 'framer-motion'
+import Header from '@/components/Header'
+import SimpleRaffleCard from '@/components/SimpleRaffleCard'
 import { mockRaffles } from '@/lib/mockData'
-import PremiumRaffleCard from '@/components/PremiumRaffleCard'
-import PremiumHeader from '@/components/PremiumHeader'
 
 export default function Home() {
   const activeRaffles = mockRaffles.filter(raffle => raffle.status === 'active').slice(0, 3)
@@ -9,10 +10,9 @@ export default function Home() {
   return (
     <div className="min-h-screen relative">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 opacity-60"></div>
+      <Header />
       
-      <PremiumHeader />
-      
-      {/* Hero Section */}
+      {/* Simple Hero Section */}
       <section className="relative py-24 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h1 className="text-4xl md:text-6xl font-bold text-slate-900 mb-6 leading-tight">
@@ -34,8 +34,10 @@ export default function Home() {
             <p className="text-slate-600 mb-8">Deltag nu i de mest eftertragtede konkurrencer</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {featuredRaffles.slice(0,3).map((raffle, index) => (
-                <div key={raffle.id} className="transform scale-90 hover:scale-95 transition-transform duration-300">
-                  <PremiumRaffleCard raffle={raffle} index={index} />
+                <div key={raffle.id} className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-slate-200">
+                  <div className="text-2xl mb-3">{raffle.emoji}</div>
+                  <div className="font-semibold text-slate-900">{raffle.title}</div>
+                  <div className="text-sm text-slate-600">{raffle.participants} deltagere</div>
                 </div>
               ))}
             </div>
@@ -53,13 +55,16 @@ export default function Home() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {activeRaffles.map((raffle, index) => (
-              <PremiumRaffleCard 
-                key={raffle.id} 
-                raffle={raffle} 
-                index={index}
-              />
+              <motion.div
+                key={raffle.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <SimpleRaffleCard raffle={raffle} />
+              </motion.div>
             ))}
           </div>
         </div>

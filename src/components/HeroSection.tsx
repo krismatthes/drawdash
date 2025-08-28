@@ -1,119 +1,190 @@
 'use client'
 
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
+import PremiumButton from './PremiumButton'
+import TrustBadges from './TrustBadges'
 
 export default function HeroSection() {
   const { t } = useLanguage()
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  }
+
   return (
-    <section className="bg-gradient-to-r from-green-500/80 to-green-700/80 text-white py-16 relative overflow-hidden backdrop-blur-sm">
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
-      <div className="absolute top-8 left-8 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-8 right-8 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+    <section className="relative py-24 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 opacity-60"></div>
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        <h1 className="text-3xl md:text-5xl font-bold mb-5">
-          {t('heroTitle')}
-        </h1>
-        <p className="text-lg md:text-xl mb-6 max-w-3xl mx-auto opacity-90">
-          {t('heroSubtitle')}
-        </p>
+      <motion.div 
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* Live Status & Stats */}
+        <motion.div 
+          className="flex justify-center items-center gap-6 mb-8"
+          variants={itemVariants}
+        >
+          <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            Live Nu
+          </div>
+          <div className="flex items-center gap-4 text-sm text-slate-600">
+            <span className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              234 aktive deltagere
+            </span>
+            <span>•</span>
+            <span>12 lodtrækninger i dag</span>
+          </div>
+        </motion.div>
+
+        {/* Main Headline */}
+        <motion.div variants={itemVariants}>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 leading-tight">
+            Vind <span className="text-gradient">fantastiske præmier</span>
+            <br />med DrawDash
+          </h1>
+        </motion.div>
         
-        {/* Redesigned Free Entry Card */}
-        <div className="relative max-w-3xl mx-auto mb-6">
-          <div className="bg-white/90 text-gray-800 rounded-2xl p-6 shadow-xl border border-white/30 backdrop-blur-md">
-            <div className="flex items-center justify-center mb-4">
-              <div className="bg-green-600 text-white rounded-full p-3 mr-4">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 7.89a2 2 0 002.83 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div className="text-left">
-                <h3 className="text-2xl font-bold text-green-600 mb-1">{t('freeEntryTitle')}</h3>
-                <p className="text-green-700 font-medium">Helt gratis deltagelse via postkort</p>
-              </div>
+        <motion.p 
+          className="text-xl md:text-2xl text-slate-600 mb-12 max-w-4xl mx-auto leading-relaxed"
+          variants={itemVariants}
+        >
+          Danmarks mest troværdige platform for lodtrækninger. Sikre betalinger, fair draws og øjeblikkelige resultater.
+        </motion.p>
+        
+        {/* CTA Buttons */}
+        <motion.div 
+          className="flex flex-col sm:flex-row gap-4 justify-center mb-20"
+          variants={itemVariants}
+        >
+          <PremiumButton
+            variant="premium"
+            size="xl"
+            icon="🎯"
+            shimmer
+            className="font-bold"
+          >
+            Se Aktive Lodtrækninger
+          </PremiumButton>
+          
+          <PremiumButton
+            variant="ghost"
+            size="xl"
+            icon="❓"
+          >
+            Hvordan Fungerer Det?
+          </PremiumButton>
+        </motion.div>
+
+        {/* Featured Info */}
+        <motion.div variants={itemVariants}>
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-slate-900 mb-2">Populære Lodtrækninger</h2>
+            <p className="text-slate-600">Deltag nu i de mest eftertragtede konkurrencer</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-slate-200">
+              <div className="text-2xl mb-3">🏆</div>
+              <div className="font-semibold text-slate-900">iPhone 15 Pro</div>
+              <div className="text-sm text-slate-600">124 deltagere</div>
             </div>
-            
-            <div className="grid md:grid-cols-2 gap-6 items-center">
-              <div className="text-left space-y-3">
-                <p className="text-gray-700 leading-relaxed">
-                  {t('freeEntryText')}
-                </p>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-sm text-gray-600">Helt lovligt og gratis</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-sm text-gray-600">Samme vindechance som betalte billetter</span>
-                </div>
-              </div>
-              
-              <div className="bg-green-50 rounded-xl p-4 border-2 border-green-200">
-                <div className="text-center">
-                  <div className="text-3xl mb-2">📮</div>
-                  <p className="text-sm font-semibold text-green-800 mb-2">Send postkort til:</p>
-                  <div className="bg-white rounded-lg p-3 border border-green-200">
-                    <p className="text-xs text-gray-700 leading-tight">
-                      DrawDash Gratis Deltagelse<br />
-                      PO Box 123<br />
-                      London, W1A 0AA
-                    </p>
-                  </div>
-                </div>
-              </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-slate-200">
+              <div className="text-2xl mb-3">🚗</div>
+              <div className="font-semibold text-slate-900">Tesla Model 3</div>
+              <div className="text-sm text-slate-600">89 deltagere</div>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-slate-200">
+              <div className="text-2xl mb-3">💍</div>
+              <div className="font-semibold text-slate-900">Rolex Watch</div>
+              <div className="text-sm text-slate-600">67 deltagere</div>
             </div>
           </div>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link 
-            href="/raffles"
-            className="bg-white text-green-600 px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg"
-          >
-            {t('viewActiveRaffles')}
-          </Link>
-          <Link 
-            href="/how-it-works"
-            className="border-2 border-white text-white px-8 py-3 rounded-xl font-semibold hover:bg-white hover:text-green-600 transition-all transform hover:scale-105"
-          >
-            {t('howItWorks')}
-          </Link>
-        </div>
+        </motion.div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-center shadow-lg transform hover:scale-105 transition-all duration-200">
-            <div className="bg-white/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-              </svg>
+        {/* Value Propositions */}
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20"
+          variants={itemVariants}
+        >
+          <motion.div 
+            className="card-premium p-8 text-center group"
+            whileHover={{ y: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="text-3xl">💰</div>
             </div>
-            <div className="text-3xl font-bold mb-2 text-white">5 kr</div>
-            <div className="text-blue-100 font-medium">{t('startingPrice')}</div>
+            <div className="text-3xl font-bold text-gradient mb-3">Fra 5 kr</div>
+            <div className="text-slate-600 font-medium mb-4">Billige billetter til alle</div>
+            <p className="text-sm text-slate-500">Deltag i premium lodtrækninger til en overkommelig pris</p>
+          </motion.div>
+          
+          <motion.div 
+            className="card-premium p-8 text-center group"
+            whileHover={{ y: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <div className="bg-gradient-to-br from-emerald-50 to-green-100 rounded-2xl w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="text-3xl">🛡️</div>
+            </div>
+            <div className="text-3xl font-bold text-gradient mb-3">100% Sikker</div>
+            <div className="text-slate-600 font-medium mb-4">Bank-niveau sikkerhed</div>
+            <p className="text-sm text-slate-500">SSL kryptering og PCI compliance for maksimal sikkerhed</p>
+          </motion.div>
+          
+          <motion.div 
+            className="card-premium p-8 text-center group"
+            whileHover={{ y: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <div className="bg-gradient-to-br from-purple-50 to-pink-100 rounded-2xl w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="text-3xl">⚡</div>
+            </div>
+            <div className="text-3xl font-bold text-gradient mb-3">Live Resultater</div>
+            <div className="text-slate-600 font-medium mb-4">Øjeblikkelige vindere</div>
+            <p className="text-sm text-slate-500">Se vinderne blive annonceret live på Facebook</p>
+          </motion.div>
+        </motion.div>
+
+        {/* Trust Indicators */}
+        <motion.div 
+          className="mt-20 pt-12 border-t border-slate-200"
+          variants={itemVariants}
+        >
+          <div className="mb-8">
+            <p className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-6">Trusted By Thousands</p>
+            <TrustBadges layout="horizontal" variant="minimal" />
           </div>
           
-          <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 text-center shadow-lg transform hover:scale-105 transition-all duration-200">
-            <div className="bg-white/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+          {/* Alternative Entry Disclaimer */}
+          <div className="bg-slate-50/50 rounded-2xl p-6 border border-slate-200/60">
+            <div className="flex items-center justify-center gap-3 text-sm text-slate-500">
+              <div className="text-slate-400">📮</div>
+              <span>Gratis deltagelse mulig via postkort</span>
+              <span>•</span>
+              <a href="/free-entry" className="underline hover:text-slate-700 transition-colors">
+                Læs mere
+              </a>
             </div>
-            <div className="text-3xl font-bold mb-2 text-white">Fair</div>
-            <div className="text-emerald-100 font-medium">{t('fairDraws')}</div>
           </div>
-          
-          <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-6 text-center shadow-lg transform hover:scale-105 transition-all duration-200">
-            <div className="bg-white/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <div className="text-3xl font-bold mb-2 text-white">Øjeblikkelig</div>
-            <div className="text-amber-100 font-medium">{t('instantResults')}</div>
-          </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   )
 }

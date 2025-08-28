@@ -18,7 +18,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="da">
-      <body className={inter.className}>
+      {/* suppressHydrationWarning prevents warnings from browser extensions like Grammarly */}
+      <body className={inter.className} suppressHydrationWarning={true}>
         <LanguageProvider>
           <AuthProvider>
             {children}

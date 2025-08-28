@@ -1,3 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    /* Premium Color Palette */
+    --color-primary-50: 248 250 252;   /* slate-50 */
+    --color-primary-100: 241 245 249;  /* slate-100 */
+    --color-primary-200: 226 232 240;  /* slate-200 */
+    --color-primary-300: 203 213 225;  /* slate-300 */
+    --color-primary-400: 148 163 184;  /* slate-400 */
+    --color-primary-500: 100 116 139;  /* slate-500 */
+    --color-primary-600: 71 85 105;    /* slate-600 */
+    --color-primary-700: 51 65 85;     /* slate-700 */
+    --color-primary-800: 30 41 59;     /* slate-800 */
+    --color-primary-900: 15 23 42;     /* slate-900 */
+    
+    /* Accent Colors */
+    --color-accent-blue: 59 130 246;    /* blue-500 */
+    --color-accent-blue-hover: 37 99 235; /* blue-600 */
+    --color-accent-mint: 16 185 129;     /* emerald-500 */
+    --color-accent-rose: 244 114 182;   /* pink-400 */
+    --color-accent-gold: 251 191 36;    /* amber-400 */
+    
+    /* Semantic Colors */
+    --color-success: 34 197 94;  /* green-500 */
+    --color-warning: 245 158 11; /* amber-500 */
+    --color-error: 239 68 68;    /* red-500 */
+    --color-info: 59 130 246;    /* blue-500 */
+    
+    /* Background Gradients */
+    --gradient-mesh: linear-gradient(135deg, rgb(248, 250, 252) 0%, rgb(241, 245, 249) 50%, rgb(226, 232, 240) 100%);
+    --gradient-premium: linear-gradient(135deg, rgb(59, 130, 246) 0%, rgb(244, 114, 182) 100%);
+    --gradient-gold: linear-gradient(135deg, rgb(251, 191, 36) 0%, rgb(245, 158, 11) 100%);
+    
+    /* Typography Scale */
+    --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, Inconsolata, 'Roboto Mono', 'Courier New', monospace;
+  }
+  
+  html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  }
+  
+  body {
+    background: rgb(var(--color-primary-50));
+    color: rgb(var(--color-primary-900));
+  }
+}
+
+@layer components {
+  /* Premium Button Styles */
+  .btn-primary {
+    @apply bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98];
+  }
+  
+  .btn-premium {
+    @apply bg-gradient-to-r from-blue-500 to-pink-400 hover:from-blue-600 hover:to-pink-500 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl active:scale-[0.98];
+  }
+  
+  /* Card Styles */
+  .card-premium {
+    @apply bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-xl shadow-sm hover:shadow-md transition-all duration-200;
+  }
+  
+  /* Glassmorphism Effect */
+  .glass {
+    @apply bg-white/20 backdrop-blur-md border border-white/30;
+  }
+  
+  /* Gradient Text */
+  .text-gradient {
+    @apply bg-gradient-to-r from-blue-600 to-pink-400 bg-clip-text text-transparent;
+  }
+  
+  /* Smooth Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+  
+  .animate-pulse-subtle {
+    animation: pulseSubtle 2s ease-in-out infinite;
+  }
+}
+
+@layer utilities {
+  /* Custom Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes pulseSubtle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+  }
+  
+  /* Typography Utilities */
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+  
+  /* Gradient Backgrounds */
+  .bg-mesh {
+    background: var(--gradient-mesh);
+  }
+  
+  .bg-premium {
+    background: var(--gradient-premium);
+  }
+  
+  .bg-gold {
+    background: var(--gradient-gold);
+  }
+  
+  /* Mobile-specific utilities */
+  .mobile-sticky {
+    @apply sticky bottom-4 z-50;
+  }
+  
+  .mobile-fab {
+    @apply fixed bottom-6 right-6 z-50 md:hidden;
+  }
+  
+  .mobile-safe-area {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Touch-friendly interactions */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  /* Smooth scrolling for mobile */
+  .scroll-smooth {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent zoom on inputs */
+  @media screen and (max-width: 768px) {
+    input[type="number"],
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    select,
+    textarea {
+      font-size: 16px;
+    }
+  }
+}
