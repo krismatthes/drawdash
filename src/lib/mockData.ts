@@ -138,6 +138,10 @@ export const mockRaffles: Raffle[] = [
     endDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 day from now
     status: 'active',
     isInstantWin: true,
+    participants: 234,
+    emoji: '💰',
+    category: 'Instant Win',
+    endsAt: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
     prize: {
       name: '5.000 kr Instant Cash',
       value: 5000,
@@ -155,6 +159,10 @@ export const mockRaffles: Raffle[] = [
     endDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
     status: 'active',
     isInstantWin: true,
+    participants: 567,
+    emoji: '⌚',
+    category: 'Instant Win',
+    endsAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
     prize: {
       name: 'Apple Watch Ultra 2',
       value: 8500,
@@ -172,6 +180,10 @@ export const mockRaffles: Raffle[] = [
     endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
     status: 'active',
     isInstantWin: true,
+    participants: 1123,
+    emoji: '🎁',
+    category: 'Instant Win',
+    endsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     prize: {
       name: 'Amazon 2.000 kr Gavekort',
       value: 2000,

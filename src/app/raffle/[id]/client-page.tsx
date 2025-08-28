@@ -67,7 +67,7 @@ Held og lykke! Du kan se alle dine deltagelser på din konto side.`
     return (
       <div className="min-h-screen relative">
         <GradientMesh variant="hero" />
-        <Header />
+        <PremiumHeader />
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900">Raffle Not Found</h1>

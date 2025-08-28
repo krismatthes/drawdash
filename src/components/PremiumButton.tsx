@@ -1,9 +1,9 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ReactNode, ButtonHTMLAttributes } from 'react'
+import { ReactNode } from 'react'
 
-interface PremiumButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface PremiumButtonProps {
   variant?: 'primary' | 'premium' | 'ghost' | 'outline'
   size?: 'sm' | 'md' | 'lg' | 'xl'
   icon?: ReactNode
@@ -12,6 +12,9 @@ interface PremiumButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   shimmer?: boolean
   children: ReactNode
   className?: string
+  disabled?: boolean
+  onClick?: () => void
+  type?: 'button' | 'submit' | 'reset'
 }
 
 export default function PremiumButton({
@@ -24,7 +27,8 @@ export default function PremiumButton({
   children,
   className = '',
   disabled,
-  ...props
+  onClick,
+  type = 'button'
 }: PremiumButtonProps) {
   
   const variants = {
@@ -54,7 +58,8 @@ export default function PremiumButton({
       whileHover={isDisabled ? {} : { scale: 1.02 }}
       whileTap={isDisabled ? {} : { scale: 0.98 }}
       disabled={isDisabled}
-      {...props}
+      onClick={onClick}
+      type={type}
     >
       {/* Shimmer effect */}
       {shimmer && !isDisabled && (
