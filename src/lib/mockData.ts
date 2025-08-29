@@ -19,7 +19,9 @@ export const mockRaffles: Raffle[] = [
     prize: {
       name: 'BMW M4 Competition',
       value: 850000,
-      description: 'Brand new BMW M4 Competition in Alpine White with M Performance package'
+      cost: 750000,
+      description: 'Brand new BMW M4 Competition in Alpine White with M Performance package',
+      images: []
     }
   },
   {
@@ -40,7 +42,9 @@ export const mockRaffles: Raffle[] = [
     prize: {
       name: 'iPhone 15 Pro Max 512GB',
       value: 15999,
-      description: 'Latest iPhone 15 Pro Max 512GB in Natural Titanium, brand new with warranty'
+      cost: 12500,
+      description: 'Latest iPhone 15 Pro Max 512GB in Natural Titanium, brand new with warranty',
+      images: []
     }
   },
   {
@@ -61,7 +65,9 @@ export const mockRaffles: Raffle[] = [
     prize: {
       name: 'Rolex Submariner Date 41mm',
       value: 95000,
-      description: 'Authentic Rolex Submariner Date 41mm with papers and original box'
+      cost: 80000,
+      description: 'Authentic Rolex Submariner Date 41mm with papers and original box',
+      images: []
     }
   },
   {
@@ -82,7 +88,9 @@ export const mockRaffles: Raffle[] = [
     prize: {
       name: 'Kontantpræmie',
       value: 100000,
-      description: '100.000 kr kontant overført direkte til din bankkonto inden for 24 timer'
+      cost: 100000,
+      description: '100.000 kr kontant overført direkte til din bankkonto inden for 24 timer',
+      images: []
     }
   },
   {
@@ -103,7 +111,9 @@ export const mockRaffles: Raffle[] = [
     prize: {
       name: 'PlayStation 5 Bundle',
       value: 7500,
-      description: 'PS5 Console with Spider-Man 2, FIFA 24, Call of Duty + DualSense controller'
+      cost: 6200,
+      description: 'PS5 Console with Spider-Man 2, FIFA 24, Call of Duty + DualSense controller',
+      images: []
     }
   },
   {
@@ -124,7 +134,9 @@ export const mockRaffles: Raffle[] = [
     prize: {
       name: 'MacBook Pro 14" M3 Max',
       value: 35000,
-      description: 'MacBook Pro 14" M3 Max chip, 32GB RAM, 1TB SSD in Space Black'
+      cost: 28000,
+      description: 'MacBook Pro 14" M3 Max chip, 32GB RAM, 1TB SSD in Space Black',
+      images: []
     }
   },
   {
@@ -145,7 +157,9 @@ export const mockRaffles: Raffle[] = [
     prize: {
       name: '5.000 kr Instant Cash',
       value: 5000,
-      description: '5.000 kr kontant overført øjeblikkeligt til din konto'
+      cost: 5000,
+      description: '5.000 kr kontant overført øjeblikkeligt til din konto',
+      images: []
     }
   },
   {
@@ -166,7 +180,9 @@ export const mockRaffles: Raffle[] = [
     prize: {
       name: 'Apple Watch Ultra 2',
       value: 8500,
-      description: 'Apple Watch Ultra 2 med Titanium case og Ocean Band'
+      cost: 7000,
+      description: 'Apple Watch Ultra 2 med Titanium case og Ocean Band',
+      images: []
     }
   },
   {
@@ -187,7 +203,9 @@ export const mockRaffles: Raffle[] = [
     prize: {
       name: 'Amazon 2.000 kr Gavekort',
       value: 2000,
-      description: '2.000 kr Amazon gavekort sendt øjeblikkeligt via email'
+      cost: 2000,
+      description: '2.000 kr Amazon gavekort sendt øjeblikkeligt via email',
+      images: []
     }
   }
 ]

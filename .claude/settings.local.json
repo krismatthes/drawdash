@@ -32,7 +32,8 @@
       "Bash(npm run lint)",
       "Bash(pkill:*)",
       "Bash(mv:*)",
-      "WebFetch(domain:goodlifeplus.co.uk)"
+      "WebFetch(domain:goodlifeplus.co.uk)",
+      "Bash(npx tsc:*)"
     ],
     "defaultMode": "acceptEdits",
     "additionalDirectories": [

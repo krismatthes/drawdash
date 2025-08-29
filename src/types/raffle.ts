@@ -16,7 +16,9 @@ export interface Raffle {
   prize: {
     name: string
     value: number
+    cost: number // New: Prize cost for markup calculation
     description: string
+    images?: string[] // New: Multiple uploaded images
   }
 }
 
