@@ -1,0 +1,748 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
+
+interface Transaction {
+  id: string
+  userId: string
+  userName: string
+  userEmail: string
+  raffleId: string
+  raffleTitle: string
+  amount: number
+  status: 'completed' | 'pending' | 'failed' | 'refunded'
+  paymentMethod: 'stripe' | 'paypal' | 'manual'
+  transactionId: string
+  createdAt: Date
+  ticketCount: number
+}
+
+interface Payout {
+  id: string
+  winnerId: string
+  winnerName: string
+  winnerEmail: string
+  raffleId: string
+  raffleTitle: string
+  prizeType: 'money' | 'physical'
+  amount?: number
+  prizeName: string
+  status: 'pending' | 'processing' | 'completed' | 'failed'
+  createdAt: Date
+  processedAt?: Date
+}
+
+// Mock transaction data
+const mockTransactions: Transaction[] = [
+  {
+    id: 'txn_001',
+    userId: '1',
+    userName: 'John Doe',
+    userEmail: 'john.doe@email.dk',
+    raffleId: 'raffle_1',
+    raffleTitle: 'BMW M4',
+    amount: 250,
+    status: 'completed',
+    paymentMethod: 'stripe',
+    transactionId: 'pi_3Nz9xY2eZvKYlo2C0123456789',
+    createdAt: new Date('2024-08-29T10:30:00'),
+    ticketCount: 5
+  },
+  {
+    id: 'txn_002',
+    userId: '2',
+    userName: 'Sarah Nielsen',
+    userEmail: 'sarah.nielsen@email.dk',
+    raffleId: 'raffle_2',
+    raffleTitle: 'iPhone 15 Pro',
+    amount: 500,
+    status: 'completed',
+    paymentMethod: 'stripe',
+    transactionId: 'pi_3Nz9xY2eZvKYlo2C0987654321',
+    createdAt: new Date('2024-08-29T09:15:00'),
+    ticketCount: 10
+  },
+  {
+    id: 'txn_003',
+    userId: '3',
+    userName: 'Mike Hansen',
+    userEmail: 'mike.hansen@email.dk',
+    raffleId: 'raffle_3',
+    raffleTitle: 'PlayStation 5',
+    amount: 100,
+    status: 'pending',
+    paymentMethod: 'paypal',
+    transactionId: 'PAYID-MXJ2GQY09876543210',
+    createdAt: new Date('2024-08-29T08:45:00'),
+    ticketCount: 2
+  },
+  {
+    id: 'txn_004',
+    userId: '4',
+    userName: 'Emma Larsen',
+    userEmail: 'emma.larsen@email.dk',
+    raffleId: 'raffle_1',
+    raffleTitle: 'BMW M4',
+    amount: 400,
+    status: 'failed',
+    paymentMethod: 'stripe',
+    transactionId: 'pi_3Nz9xY2eZvKYlo2C0555555555',
+    createdAt: new Date('2024-08-29T07:20:00'),
+    ticketCount: 8
+  },
+  {
+    id: 'txn_005',
+    userId: '5',
+    userName: 'David Andersen',
+    userEmail: 'david.andersen@email.dk',
+    raffleId: 'raffle_4',
+    raffleTitle: 'MacBook Pro',
+    amount: 150,
+    status: 'completed',
+    paymentMethod: 'stripe',
+    transactionId: 'pi_3Nz9xY2eZvKYlo2C0111111111',
+    createdAt: new Date('2024-08-28T16:30:00'),
+    ticketCount: 3
+  }
+]
+
+// Mock payout data
+const mockPayouts: Payout[] = [
+  {
+    id: 'payout_001',
+    winnerId: '2',
+    winnerName: 'Sarah Nielsen',
+    winnerEmail: 'sarah.nielsen@email.dk',
+    raffleId: 'raffle_5',
+    raffleTitle: 'Kontant Præmie',
+    prizeType: 'money',
+    amount: 50000,
+    prizeName: '50.000 kr kontant',
+    status: 'pending',
+    createdAt: new Date('2024-08-28T14:00:00')
+  },
+  {
+    id: 'payout_002',
+    winnerId: '1',
+    winnerName: 'John Doe',
+    winnerEmail: 'john.doe@email.dk',
+    raffleId: 'raffle_6',
+    raffleTitle: 'Pengepræmie',
+    prizeType: 'money',
+    amount: 25000,
+    prizeName: '25.000 kr kontant',
+    status: 'processing',
+    createdAt: new Date('2024-08-27T12:00:00')
+  },
+  {
+    id: 'payout_003',
+    winnerId: '4',
+    winnerName: 'Emma Larsen',
+    winnerEmail: 'emma.larsen@email.dk',
+    raffleId: 'raffle_7',
+    raffleTitle: 'Stor Kontant Gevinst',
+    prizeType: 'money',
+    amount: 100000,
+    prizeName: '100.000 kr kontant',
+    status: 'completed',
+    createdAt: new Date('2024-08-25T10:00:00'),
+    processedAt: new Date('2024-08-26T15:30:00')
+  }
+]
+
+export default function FinanceManagement() {
+  const { user, isAuthenticated, isLoading } = useAuth()
+  const router = useRouter()
+  const [activeTab, setActiveTab] = useState<'transactions' | 'payouts'>('transactions')
+  const [transactions] = useState<Transaction[]>(mockTransactions)
+  const [payouts, setPayouts] = useState<Payout[]>(mockPayouts)
+  const [transactionFilter, setTransactionFilter] = useState<'all' | 'completed' | 'pending' | 'failed'>('all')
+  const [payoutFilter, setPayoutFilter] = useState<'all' | 'pending' | 'processing' | 'completed'>('all')
+
+  // Redirect if not admin
+  useEffect(() => {
+    if (!isLoading) {
+      if (!isAuthenticated) {
+        router.push('/login?redirect=/admin/finance')
+        return
+      }
+      if (!user?.isAdmin) {
+        router.push('/')
+        return
+      }
+    }
+  }, [isLoading, isAuthenticated, user?.isAdmin, router])
+
+  // Show loading
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render if not admin (will redirect)
+  if (!isAuthenticated || !user?.isAdmin) {
+    return null
+  }
+
+  const filteredTransactions = transactions.filter(txn => 
+    transactionFilter === 'all' || txn.status === transactionFilter
+  )
+
+  const filteredPayouts = payouts.filter(payout => 
+    payoutFilter === 'all' || payout.status === payoutFilter
+  )
+
+  const updatePayoutStatus = (payoutId: string, newStatus: Payout['status']) => {
+    setPayouts(prev => prev.map(payout => 
+      payout.id === payoutId 
+        ? { 
+            ...payout, 
+            status: newStatus,
+            processedAt: newStatus === 'completed' ? new Date() : payout.processedAt
+          }
+        : payout
+    ))
+  }
+
+  const transactionStats = {
+    total: transactions.length,
+    completed: transactions.filter(t => t.status === 'completed').length,
+    pending: transactions.filter(t => t.status === 'pending').length,
+    failed: transactions.filter(t => t.status === 'failed').length,
+    totalRevenue: transactions.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.amount, 0)
+  }
+
+  const payoutStats = {
+    total: payouts.length,
+    pending: payouts.filter(p => p.status === 'pending').length,
+    processing: payouts.filter(p => p.status === 'processing').length,
+    completed: payouts.filter(p => p.status === 'completed').length,
+    totalPending: payouts.filter(p => p.status === 'pending').reduce((sum, p) => sum + (p.amount || 0), 0)
+  }
+
+  const getTransactionStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800 border-green-200'
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'failed':
+        return 'bg-red-100 text-red-800 border-red-200'
+      case 'refunded':
+        return 'bg-gray-100 text-gray-800 border-gray-200'
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
+  const getPayoutStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'processing':
+        return 'bg-blue-100 text-blue-800 border-blue-200'
+      case 'completed':
+        return 'bg-green-100 text-green-800 border-green-200'
+      case 'failed':
+        return 'bg-red-100 text-red-800 border-red-200'
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
+  const getPaymentMethodIcon = (method: string) => {
+    switch (method) {
+      case 'stripe':
+        return '💳'
+      case 'paypal':
+        return '🅿️'
+      case 'manual':
+        return '👤'
+      default:
+        return '💰'
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      {/* Sidebar */}
+      <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg border-r border-slate-200">
+        <div className="flex h-full flex-col">
+          {/* Logo */}
+          <div className="flex h-16 items-center border-b border-slate-200 px-4">
+            <Link href="/admin" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">DD</span>
+              </div>
+              <div>
+                <div className="text-sm font-bold text-slate-900">DrawDash</div>
+                <div className="text-xs text-slate-500">Admin Panel</div>
+              </div>
+            </Link>
+          </div>
+          
+          {/* Navigation */}
+          <nav className="flex-1 px-4 py-4">
+            <div className="space-y-1">
+              <Link href="/admin">
+                <div className="text-slate-600 hover:bg-slate-50 hover:text-slate-900 px-3 py-2.5 text-sm font-medium rounded-xl flex items-center gap-3 transition-colors">
+                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                  Dashboard
+                </div>
+              </Link>
+              
+              <Link href="/admin/raffles">
+                <div className="text-slate-600 hover:bg-slate-50 hover:text-slate-900 px-3 py-2.5 text-sm font-medium rounded-xl flex items-center gap-3 transition-colors">
+                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 0v1m-2 0V6a2 2 0 00-2 0v1m2 0V9.5m0 0v3m0-3h3m-3 0h-3m-2-5a9 9 0 1118 0 9 9 0 01-18 0z" />
+                  </svg>
+                  Lodtrækninger
+                </div>
+              </Link>
+              
+              <Link href="/admin/users">
+                <div className="text-slate-600 hover:bg-slate-50 hover:text-slate-900 px-3 py-2.5 text-sm font-medium rounded-xl flex items-center gap-3 transition-colors">
+                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m3 5.197H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Brugere
+                </div>
+              </Link>
+              
+              <Link href="/admin/finance">
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 border border-blue-200 px-3 py-2.5 text-sm font-medium rounded-xl flex items-center gap-3">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Finans
+                  <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full" />
+                </div>
+              </Link>
+              
+              <Link href="/admin/faq">
+                <div className="text-slate-600 hover:bg-slate-50 hover:text-slate-900 px-3 py-2.5 text-sm font-medium rounded-xl flex items-center gap-3 transition-colors">
+                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  FAQ
+                </div>
+              </Link>
+            </div>
+          </nav>
+        </div>
+      </div>
+      
+      {/* Main content */}
+      <div className="pl-64">
+        {/* Top bar */}
+        <div className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm text-slate-600">System Online</span>
+          </div>
+          <div className="text-sm text-slate-500">
+            {new Date().toLocaleDateString('da-DK', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long', 
+              day: 'numeric'
+            })}
+          </div>
+        </div>
+
+        <main className="px-6 py-8">
+          <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Finansiel Styring</h1>
+          <p className="text-slate-600">Administrer transaktioner og udbetalinger</p>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="border-b border-slate-200">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setActiveTab('transactions')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'transactions'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+              }`}
+            >
+              💳 Transaktioner
+            </button>
+            <button
+              onClick={() => setActiveTab('payouts')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'payouts'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+              }`}
+            >
+              💰 Udbetalinger
+            </button>
+          </nav>
+        </div>
+
+        {/* Transactions Tab */}
+        {activeTab === 'transactions' && (
+          <div className="space-y-6">
+            {/* Transaction Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="bg-white rounded-xl p-6 border border-slate-200">
+                <div className="text-sm text-slate-600">Total Transaktioner</div>
+                <div className="text-2xl font-bold text-slate-900">{transactionStats.total}</div>
+              </div>
+              <div className="bg-white rounded-xl p-6 border border-slate-200">
+                <div className="text-sm text-slate-600">Gennemførte</div>
+                <div className="text-2xl font-bold text-green-600">{transactionStats.completed}</div>
+              </div>
+              <div className="bg-white rounded-xl p-6 border border-slate-200">
+                <div className="text-sm text-slate-600">Afventende</div>
+                <div className="text-2xl font-bold text-yellow-600">{transactionStats.pending}</div>
+              </div>
+              <div className="bg-white rounded-xl p-6 border border-slate-200">
+                <div className="text-sm text-slate-600">Fejlede</div>
+                <div className="text-2xl font-bold text-red-600">{transactionStats.failed}</div>
+              </div>
+              <div className="bg-white rounded-xl p-6 border border-slate-200">
+                <div className="text-sm text-slate-600">Total Omsætning</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {transactionStats.totalRevenue.toLocaleString()} kr
+                </div>
+              </div>
+            </div>
+
+            {/* Transaction Filter */}
+            <div className="bg-white rounded-xl p-6 border border-slate-200">
+              <div className="flex space-x-1 p-1 bg-slate-100 rounded-lg w-fit">
+                {[
+                  { key: 'all', label: 'Alle' },
+                  { key: 'completed', label: 'Gennemført' },
+                  { key: 'pending', label: 'Afventende' },
+                  { key: 'failed', label: 'Fejlet' }
+                ].map((option) => (
+                  <button
+                    key={option.key}
+                    onClick={() => setTransactionFilter(option.key as any)}
+                    className={`px-3 py-2 text-sm font-medium rounded-md transition-all ${
+                      transactionFilter === option.key
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Transactions Table */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead className="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        Transaktion
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        Kunde
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        Lodtrækning
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        Beløb
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        Dato
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {filteredTransactions.map((transaction) => (
+                      <motion.tr
+                        key={transaction.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="hover:bg-slate-50 transition-colors"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="text-2xl">
+                              {getPaymentMethodIcon(transaction.paymentMethod)}
+                            </div>
+                            <div>
+                              <div className="text-sm font-medium text-slate-900">
+                                {transaction.id}
+                              </div>
+                              <div className="text-xs text-slate-500">
+                                {transaction.transactionId}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        
+                        <td className="px-6 py-4">
+                          <div>
+                            <div className="text-sm font-medium text-slate-900">
+                              {transaction.userName}
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              {transaction.userEmail}
+                            </div>
+                          </div>
+                        </td>
+                        
+                        <td className="px-6 py-4">
+                          <div>
+                            <div className="text-sm font-medium text-slate-900">
+                              {transaction.raffleTitle}
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              {transaction.ticketCount} billetter
+                            </div>
+                          </div>
+                        </td>
+                        
+                        <td className="px-6 py-4">
+                          <div className="text-sm font-semibold text-slate-900">
+                            {transaction.amount.toLocaleString()} kr
+                          </div>
+                        </td>
+                        
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getTransactionStatusColor(transaction.status)}`}>
+                            {transaction.status === 'completed' ? 'Gennemført' :
+                             transaction.status === 'pending' ? 'Afventende' :
+                             transaction.status === 'failed' ? 'Fejlet' : 'Refunderet'}
+                          </span>
+                        </td>
+                        
+                        <td className="px-6 py-4 text-sm text-slate-600">
+                          {transaction.createdAt.toLocaleDateString('da-DK', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Payouts Tab */}
+        {activeTab === 'payouts' && (
+          <div className="space-y-6">
+            {/* Payout Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="bg-white rounded-xl p-6 border border-slate-200">
+                <div className="text-sm text-slate-600">Total Udbetalinger</div>
+                <div className="text-2xl font-bold text-slate-900">{payoutStats.total}</div>
+              </div>
+              <div className="bg-white rounded-xl p-6 border border-slate-200">
+                <div className="text-sm text-slate-600">Afventende</div>
+                <div className="text-2xl font-bold text-yellow-600">{payoutStats.pending}</div>
+              </div>
+              <div className="bg-white rounded-xl p-6 border border-slate-200">
+                <div className="text-sm text-slate-600">Behandles</div>
+                <div className="text-2xl font-bold text-blue-600">{payoutStats.processing}</div>
+              </div>
+              <div className="bg-white rounded-xl p-6 border border-slate-200">
+                <div className="text-sm text-slate-600">Gennemført</div>
+                <div className="text-2xl font-bold text-green-600">{payoutStats.completed}</div>
+              </div>
+              <div className="bg-white rounded-xl p-6 border border-slate-200">
+                <div className="text-sm text-slate-600">Afventende Beløb</div>
+                <div className="text-2xl font-bold text-orange-600">
+                  {payoutStats.totalPending.toLocaleString()} kr
+                </div>
+              </div>
+            </div>
+
+            {/* Payout Filter */}
+            <div className="bg-white rounded-xl p-6 border border-slate-200">
+              <div className="flex space-x-1 p-1 bg-slate-100 rounded-lg w-fit">
+                {[
+                  { key: 'all', label: 'Alle' },
+                  { key: 'pending', label: 'Afventende' },
+                  { key: 'processing', label: 'Behandles' },
+                  { key: 'completed', label: 'Gennemført' }
+                ].map((option) => (
+                  <button
+                    key={option.key}
+                    onClick={() => setPayoutFilter(option.key as any)}
+                    className={`px-3 py-2 text-sm font-medium rounded-md transition-all ${
+                      payoutFilter === option.key
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Payouts Table */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead className="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        Vinder
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        Lodtrækning
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        Præmie
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        Datoer
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        Handlinger
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {filteredPayouts.map((payout) => (
+                      <motion.tr
+                        key={payout.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="hover:bg-slate-50 transition-colors"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center">
+                            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mr-3">
+                              <span className="text-white text-sm font-bold">
+                                {payout.winnerName.split(' ')[0][0]}{payout.winnerName.split(' ')[1][0]}
+                              </span>
+                            </div>
+                            <div>
+                              <div className="text-sm font-medium text-slate-900">
+                                {payout.winnerName}
+                              </div>
+                              <div className="text-xs text-slate-500">
+                                {payout.winnerEmail}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        
+                        <td className="px-6 py-4">
+                          <div className="text-sm font-medium text-slate-900">
+                            {payout.raffleTitle}
+                          </div>
+                        </td>
+                        
+                        <td className="px-6 py-4">
+                          <div>
+                            <div className="text-sm font-medium text-slate-900">
+                              {payout.prizeName}
+                            </div>
+                            {payout.amount && (
+                              <div className="text-sm font-semibold text-green-600">
+                                {payout.amount.toLocaleString()} kr
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getPayoutStatusColor(payout.status)}`}>
+                            {payout.status === 'pending' ? 'Afventer' :
+                             payout.status === 'processing' ? 'Behandles' :
+                             payout.status === 'completed' ? 'Gennemført' : 'Fejlet'}
+                          </span>
+                        </td>
+                        
+                        <td className="px-6 py-4 text-sm text-slate-600">
+                          <div>
+                            Oprettet: {payout.createdAt.toLocaleDateString('da-DK')}
+                          </div>
+                          {payout.processedAt && (
+                            <div>
+                              Gennemført: {payout.processedAt.toLocaleDateString('da-DK')}
+                            </div>
+                          )}
+                        </td>
+                        
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col space-y-1">
+                            {payout.status === 'pending' && (
+                              <motion.button
+                                onClick={() => updatePayoutStatus(payout.id, 'processing')}
+                                className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                              >
+                                Start Behandling
+                              </motion.button>
+                            )}
+                            
+                            {payout.status === 'processing' && (
+                              <motion.button
+                                onClick={() => updatePayoutStatus(payout.id, 'completed')}
+                                className="px-3 py-1.5 text-xs font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                              >
+                                Marker som Gennemført
+                              </motion.button>
+                            )}
+                            
+                            {payout.status !== 'completed' && (
+                              <motion.button
+                                onClick={() => updatePayoutStatus(payout.id, 'failed')}
+                                className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                              >
+                                Marker som Fejlet
+                              </motion.button>
+                            )}
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+        </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  )
+}
