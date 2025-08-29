@@ -25,7 +25,7 @@ export default function ProductGallery({ images, title, className = '' }: Produc
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Main Image Display */}
-      <div className="relative h-[400px] overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200">
+      <div className="relative h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200">
         {isMounted && (
           <motion.div
             key={selectedImage}
@@ -39,8 +39,9 @@ export default function ProductGallery({ images, title, className = '' }: Produc
               src={mainImage}
               alt={title}
               fill
-              className="object-cover transition-transform duration-300"
+              className="object-contain sm:object-cover transition-transform duration-300"
               priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
             
             {/* Zoom indicator */}
