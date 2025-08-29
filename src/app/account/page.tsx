@@ -23,6 +23,7 @@ function AccountContent() {
   
   // Form state for editable user info
   const [isSaving, setIsSaving] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const [originalData, setOriginalData] = useState({
     firstName: '',
     lastName: '',
@@ -133,6 +134,7 @@ function AccountContent() {
       
       // Update original data to match current form data
       setOriginalData(formData)
+      setIsEditing(false)
       // Show success message (you could use a toast library)
       alert('Dine oplysninger er blevet gemt!')
     } catch (error) {
@@ -146,6 +148,7 @@ function AccountContent() {
   const handleCancel = () => {
     // Reset form data to original data
     setFormData(originalData)
+    setIsEditing(false)
   }
 
   return (
@@ -556,7 +559,18 @@ function AccountContent() {
                 <div className="card-premium p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg sm:text-xl font-bold text-slate-900">{t('personalInfo')}</h3>
-                    {hasChanges && (
+                    <div className="flex items-center gap-3">
+                      {!isEditing && (
+                        <motion.button
+                          onClick={() => setIsEditing(true)}
+                          className="px-4 py-2 bg-blue-500 text-white rounded-xl text-sm font-semibold hover:bg-blue-600 transition-all duration-300"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Rediger oplysninger
+                        </motion.button>
+                      )}
+                      {isEditing && hasChanges && (
                       <motion.div 
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -592,7 +606,8 @@ function AccountContent() {
                           )}
                         </motion.button>
                       </motion.div>
-                    )}
+                      )}
+                    </div>
                   </div>
                   
                   <div className="space-y-6">
