@@ -12,6 +12,9 @@ CREATE TABLE users (
     date_of_birth DATE,
     is_verified BOOLEAN DEFAULT false,
     is_admin BOOLEAN DEFAULT false,
+    points INTEGER DEFAULT 0,
+    total_spent DECIMAL(12,2) DEFAULT 0.00,
+    loyalty_tier VARCHAR(20) DEFAULT 'bronze',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -206,6 +209,141 @@ CREATE TRIGGER assign_ticket_numbers_trigger
     FOR EACH ROW EXECUTE FUNCTION assign_ticket_numbers();
 
 -- Insert some default system settings
+-- Loyalty tiers definition table
+CREATE TABLE loyalty_tiers (
+    tier VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    min_spent DECIMAL(12,2) NOT NULL,
+    points_multiplier DECIMAL(3,2) DEFAULT 1.00,
+    benefits JSONB,
+    color VARCHAR(7),
+    icon VARCHAR(10),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Point transactions for tracking point history
+CREATE TABLE point_transactions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    raffle_entry_id UUID REFERENCES raffle_entries(id),
+    type VARCHAR(20) NOT NULL, -- 'earned', 'redeemed', 'bonus', 'refunded'
+    points INTEGER NOT NULL,
+    description TEXT NOT NULL,
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for loyalty system
+CREATE INDEX idx_users_loyalty_tier ON users(loyalty_tier);
+CREATE INDEX idx_users_points ON users(points);
+CREATE INDEX idx_point_transactions_user_id ON point_transactions(user_id);
+CREATE INDEX idx_point_transactions_type ON point_transactions(type);
+
+-- Insert loyalty tiers
+INSERT INTO loyalty_tiers (tier, name, min_spent, points_multiplier, benefits, color, icon) VALUES
+('bronze', 'Bronze', 0.00, 1.00, '{"description": "Velkommen til DrawDash Rewards", "features": ["Grundlæggende pointoptjening", "Adgang til alle lodtrækninger", "Points indløsning"]}', '#CD7F32', '🥉'),
+('silver', 'Silver', 500.00, 1.15, '{"description": "Forbedret pointoptjening og fordele", "features": ["15% bonus points", "Prioriteret kundeservice", "Månedlig gratis billet", "Fødselsdagsbonus"]}', '#C0C0C0', '🥈'),
+('gold', 'Gold', 2000.00, 1.3, '{"description": "Premium fordele med ekstra belønninger", "features": ["30% bonus points", "VIP kundeservice", "Ugentlig gratis billet", "Early access til nye lodder", "Eksklusive tilbud"]}', '#FFD700', '🥇'),
+('diamond', 'Diamond', 10000.00, 1.5, '{"description": "Elite status med maksimale fordele", "features": ["50% bonus points", "Personlig rådgiver", "Daglige gratis billetter", "Eksklusive Diamond lodtrækninger", "Premium support", "Invitationer til events"]}', '#B9F2FF', '💎');
+
+-- Function to update user loyalty tier based on total spent
+CREATE OR REPLACE FUNCTION update_loyalty_tier(user_id_param UUID)
+RETURNS VOID AS $$
+DECLARE
+    user_spent DECIMAL(12,2);
+    new_tier VARCHAR(20);
+BEGIN
+    -- Get user's total spent
+    SELECT total_spent INTO user_spent
+    FROM users
+    WHERE id = user_id_param;
+    
+    -- Determine new tier
+    SELECT tier INTO new_tier
+    FROM loyalty_tiers
+    WHERE user_spent >= min_spent
+    ORDER BY min_spent DESC
+    LIMIT 1;
+    
+    -- Update user's tier
+    UPDATE users
+    SET loyalty_tier = new_tier
+    WHERE id = user_id_param;
+END;
+$$ language 'plpgsql';
+
+-- Function to calculate and award points for purchase
+CREATE OR REPLACE FUNCTION award_points_for_purchase()
+RETURNS TRIGGER AS $$
+DECLARE
+    base_points INTEGER;
+    bonus_points INTEGER := 0;
+    total_points INTEGER;
+    user_tier VARCHAR(20);
+    tier_multiplier DECIMAL(3,2);
+BEGIN
+    -- Only award points for completed payments
+    IF NEW.payment_status = 'completed' AND OLD.payment_status != 'completed' THEN
+        -- Calculate base points (1 kr = 1 point)
+        base_points := FLOOR(NEW.total_amount);
+        
+        -- Get user's current tier and multiplier
+        SELECT u.loyalty_tier, COALESCE(lt.points_multiplier, 1.00)
+        INTO user_tier, tier_multiplier
+        FROM users u
+        LEFT JOIN loyalty_tiers lt ON u.loyalty_tier = lt.tier
+        WHERE u.id = NEW.user_id;
+        
+        -- Apply tier multiplier
+        total_points := FLOOR(base_points * tier_multiplier);
+        
+        -- Quantity bonus: 5+ tickets = 10% bonus, 10+ tickets = 20% bonus, 25+ tickets = 30% bonus
+        IF NEW.quantity >= 25 THEN
+            bonus_points := FLOOR(total_points * 0.30);
+        ELSIF NEW.quantity >= 10 THEN
+            bonus_points := FLOOR(total_points * 0.20);
+        ELSIF NEW.quantity >= 5 THEN
+            bonus_points := FLOOR(total_points * 0.10);
+        END IF;
+        
+        total_points := total_points + bonus_points;
+        
+        -- Add points to user
+        UPDATE users
+        SET points = points + total_points,
+            total_spent = total_spent + NEW.total_amount
+        WHERE id = NEW.user_id;
+        
+        -- Record point transaction
+        INSERT INTO point_transactions (user_id, raffle_entry_id, type, points, description, metadata)
+        VALUES (
+            NEW.user_id,
+            NEW.id,
+            'earned',
+            total_points,
+            FORMAT('Points optjent for køb af %s billetter', NEW.quantity),
+            jsonb_build_object(
+                'base_points', base_points,
+                'tier_multiplier', tier_multiplier,
+                'quantity_bonus', bonus_points,
+                'ticket_quantity', NEW.quantity,
+                'tier', user_tier
+            )
+        );
+        
+        -- Update loyalty tier based on new total spent
+        PERFORM update_loyalty_tier(NEW.user_id);
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Trigger to award points when payment is completed
+CREATE TRIGGER award_points_trigger
+    AFTER UPDATE ON raffle_entries
+    FOR EACH ROW EXECUTE FUNCTION award_points_for_purchase();
+
 INSERT INTO system_settings (key, value, description) VALUES
 ('site_name', '"DrawDash"', 'Site name displayed in header and meta tags'),
 ('contact_email', '"support@drawdash.com"', 'Contact email for customer support'),
@@ -215,4 +353,7 @@ INSERT INTO system_settings (key, value, description) VALUES
 ('payment_provider', '"stripe"', 'Payment provider (stripe, paypal, etc.)'),
 ('facebook_page_url', '"https://facebook.com/drawdash"', 'Facebook page URL for live draws'),
 ('terms_version', '"1.0"', 'Current version of terms and conditions'),
-('privacy_version', '"1.0"', 'Current version of privacy policy');
+('privacy_version', '"1.0"', 'Current version of privacy policy'),
+('loyalty_points_per_kroner', '1', 'Base points earned per Danish kroner spent'),
+('max_points_redemption_percentage', '50', 'Maximum percentage of cart value that can be paid with points'),
+('points_redemption_rate', '200', 'Points required to redeem 1 Danish krone (200 points = 1 kr)');

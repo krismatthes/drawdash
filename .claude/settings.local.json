@@ -28,7 +28,11 @@
       "Bash(cat:*)",
       "Bash(ssh:*)",
       "Bash(curl:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(npm run lint)",
+      "Bash(pkill:*)",
+      "Bash(mv:*)",
+      "WebFetch(domain:goodlifeplus.co.uk)"
     ],
     "defaultMode": "acceptEdits",
     "additionalDirectories": [

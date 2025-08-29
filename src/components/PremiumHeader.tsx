@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
 import LanguageSwitcher from './LanguageSwitcher'
+import PointsDisplay from './PointsDisplay'
+import TierBadge from './TierBadge'
 
 export default function PremiumHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -114,8 +116,15 @@ export default function PremiumHeader() {
                       {user?.firstName?.[0]?.toUpperCase()}
                     </div>
                     <div className="text-left hidden sm:block">
-                      <div className="font-semibold text-slate-900 text-sm">Hej, {user?.firstName}!</div>
-                      <div className="text-xs text-slate-500">Velkommen tilbage</div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-slate-900 text-sm">Hej, {user?.firstName}!</span>
+                        <TierBadge 
+                          tier={user?.loyaltyTier || 'bronze'}
+                          size="sm"
+                          showName={false}
+                        />
+                      </div>
+                      <div className="text-xs text-slate-500">{(user?.points || 0).toLocaleString('da-DK')} points • Velkommen tilbage</div>
                     </div>
                     <motion.div
                       animate={{ rotate: isUserMenuOpen ? 180 : 0 }}
@@ -267,9 +276,16 @@ export default function PremiumHeader() {
                         <div className="w-12 h-12 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
                           {user?.firstName?.[0]?.toUpperCase()}
                         </div>
-                        <div>
-                          <div className="font-semibold text-slate-900">Hej, {user?.firstName}!</div>
-                          <div className="text-sm text-slate-500">Velkommen tilbage</div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-slate-900">Hej, {user?.firstName}!</span>
+                            <TierBadge 
+                              tier={user?.loyaltyTier || 'bronze'}
+                              size="sm"
+                              showName={false}
+                            />
+                          </div>
+                          <div className="text-sm text-slate-500">{(user?.points || 0).toLocaleString('da-DK')} points</div>
                         </div>
                       </div>
                       

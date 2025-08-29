@@ -9,6 +9,11 @@ import GradientMesh from '@/components/GradientMesh'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { getUserEntries, getUserWinnings, getUserStats, UserEntry, UserWinning, UserStats } from '@/lib/mockUserData'
+import PointsDisplay from '@/components/PointsDisplay'
+import TierBadge from '@/components/TierBadge'
+import TierProgress from '@/components/TierProgress'
+import { LoyaltyCalculator } from '@/lib/loyalty'
+import { LOYALTY_TIERS } from '@/types/loyalty'
 
 function AccountContent() {
   const { user, isAuthenticated, isLoading } = useAuth()
@@ -16,7 +21,7 @@ function AccountContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'active' | 'history' | 'winnings' | 'settings'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'active' | 'history' | 'winnings' | 'rewards' | 'settings'>('overview')
   const [userEntries, setUserEntries] = useState<UserEntry[]>([])
   const [userWinnings, setUserWinnings] = useState<UserWinning[]>([])
   const [userStats, setUserStats] = useState<UserStats | null>(null)
@@ -75,7 +80,7 @@ function AccountContent() {
 
   useEffect(() => {
     const tab = searchParams.get('tab')
-    if (tab && ['overview', 'active', 'history', 'winnings', 'settings'].includes(tab)) {
+    if (tab && ['overview', 'active', 'history', 'winnings', 'rewards', 'settings'].includes(tab)) {
       setActiveTab(tab as any)
     }
   }, [searchParams])
@@ -190,6 +195,7 @@ function AccountContent() {
                 { key: 'active', label: t('activeEntries') },
                 { key: 'history', label: t('entryHistory') },
                 { key: 'winnings', label: t('myWinnings') },
+                { key: 'rewards', label: 'DrawDash Rewards' },
                 { key: 'settings', label: t('accountSettings') }
               ].map((tab) => (
                 <motion.button
@@ -541,6 +547,194 @@ function AccountContent() {
                     <p className="text-slate-400 text-sm mt-2">Held og lykke med dine fremtidige deltagelser!</p>
                   </div>
                 )}
+              </motion.div>
+            )}
+
+            {/* DrawDash Rewards Tab */}
+            {activeTab === 'rewards' && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-8"
+              >
+                <div className="text-center">
+                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">🎆 DrawDash Rewards</h2>
+                  <p className="text-sm sm:text-base text-slate-600">Dit loyalitetsprogram med points og tier fordele</p>
+                </div>
+                
+                {/* Current Status Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="card-premium p-6 text-center">
+                    <div className="mb-4">
+                      <PointsDisplay 
+                        points={user?.points || 0}
+                        tier={user?.loyaltyTier || 'bronze'}
+                        size="lg"
+                        animate
+                      />
+                    </div>
+                    <h3 className="font-semibold text-slate-900 mb-2">Dine Points</h3>
+                    <p className="text-sm text-slate-600">
+                      Værdi: {LoyaltyCalculator.formatCurrency(Math.floor((user?.points || 0) / 200))}
+                    </p>
+                  </div>
+                  
+                  <div className="card-premium p-6 text-center">
+                    <div className="mb-4">
+                      <TierBadge 
+                        tier={user?.loyaltyTier || 'bronze'}
+                        size="lg"
+                        animate
+                      />
+                    </div>
+                    <h3 className="font-semibold text-slate-900 mb-2">Din Tier</h3>
+                    <p className="text-sm text-slate-600">
+                      {LOYALTY_TIERS[user?.loyaltyTier || 'bronze'].benefits.description}
+                    </p>
+                  </div>
+                  
+                  <div className="card-premium p-6 text-center">
+                    <div className="mb-4">
+                      <div className="text-3xl font-black text-slate-900">
+                        {LoyaltyCalculator.formatCurrency(user?.totalSpent || 0)}
+                      </div>
+                    </div>
+                    <h3 className="font-semibold text-slate-900 mb-2">Total Forbrug</h3>
+                    <p className="text-sm text-slate-600">
+                      Siden du startede med DrawDash
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Tier Progress */}
+                <div className="card-premium p-6">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-6 text-center">Tier Fremskridt</h3>
+                  <TierProgress 
+                    totalSpent={user?.totalSpent || 0}
+                    showDetails
+                    animate
+                  />
+                </div>
+                
+                {/* Current Tier Benefits */}
+                <div className="card-premium p-6">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-6">Dine Aktuelle Fordele</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-medium text-slate-800 mb-3">Points Optjening</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-slate-600">Base optjening:</span>
+                          <span className="font-semibold text-slate-900">1 kr = 1 point</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-slate-600">Tier multiplier:</span>
+                          <span className="font-semibold text-green-600">
+                            {((LOYALTY_TIERS[user?.loyaltyTier || 'bronze'].pointsMultiplier - 1) * 100).toFixed(0)}% bonus
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-slate-600">Mængde bonus:</span>
+                          <span className="font-semibold text-blue-600">Op til 30%</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium text-slate-800 mb-3">Tier Fordele</h4>
+                      <ul className="space-y-2">
+                        {LOYALTY_TIERS[user?.loyaltyTier || 'bronze'].benefits.features.map((feature, index) => (
+                          <li key={index} className="flex items-center gap-2 text-sm text-slate-700">
+                            <span className="text-green-500 text-xs">✓</span>
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* All Tiers Overview */}
+                <div className="card-premium p-6">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-6 text-center">Alle Loyalty Tiers</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {Object.values(LOYALTY_TIERS).map((tier) => {
+                      const isCurrentTier = tier.tier === user?.loyaltyTier
+                      return (
+                        <div 
+                          key={tier.tier}
+                          className={`p-4 rounded-xl border-2 transition-all ${
+                            isCurrentTier 
+                              ? 'border-blue-300 bg-blue-50 shadow-md' 
+                              : 'border-slate-200 bg-slate-50'
+                          }`}
+                        >
+                          <div className="text-center mb-3">
+                            <TierBadge tier={tier.tier} size="md" />
+                          </div>
+                          <div className="text-center mb-3">
+                            <div className="text-sm font-semibold text-slate-700">
+                              Fra {LoyaltyCalculator.formatCurrency(tier.minSpent)}
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              {Math.round((tier.pointsMultiplier - 1) * 100)}% bonus points
+                            </div>
+                          </div>
+                          <ul className="space-y-1">
+                            {tier.benefits.features.slice(0, 2).map((feature, index) => (
+                              <li key={index} className="text-xs text-slate-600 flex items-center gap-1">
+                                <span className="text-green-500 text-xs">✓</span>
+                                {feature}
+                              </li>
+                            ))}
+                          </ul>
+                          {isCurrentTier && (
+                            <div className="mt-3 text-center">
+                              <span className="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                                Din aktuelle tier
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+                
+                {/* How to Earn Points */}
+                <div className="card-premium p-6">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-6 text-center">Sådan Optjener Du Points</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[
+                      {
+                        icon: '🎫',
+                        title: 'Køb Billetter',
+                        description: 'Optjen 1 point pr. krone du bruger'
+                      },
+                      {
+                        icon: '🎯',
+                        title: 'Tier Bonus',
+                        description: `${Math.round((LOYALTY_TIERS[user?.loyaltyTier || 'bronze'].pointsMultiplier - 1) * 100)}% ekstra points med din tier`
+                      },
+                      {
+                        icon: '📦',
+                        title: 'Mængde Bonus',
+                        description: 'Køb for større beløb for mængdebonus'
+                      },
+                      {
+                        icon: '💎',
+                        title: 'Brug Points',
+                        description: 'Indløs points som rabat på køb'
+                      }
+                    ].map((item, index) => (
+                      <div key={index} className="text-center p-4 bg-slate-50 rounded-xl">
+                        <div className="text-2xl mb-2">{item.icon}</div>
+                        <h4 className="font-semibold text-slate-900 mb-2 text-sm">{item.title}</h4>
+                        <p className="text-xs text-slate-600">{item.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </motion.div>
             )}
 

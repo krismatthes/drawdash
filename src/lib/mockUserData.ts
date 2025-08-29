@@ -11,6 +11,8 @@ export interface UserEntry {
   result?: 'won' | 'lost' | 'pending'
   winningAmount?: number
   prizeClaimed?: boolean
+  pointsEarned?: number
+  pointsUsed?: number
 }
 
 export interface UserWinning {
@@ -32,6 +34,8 @@ export interface UserStats {
   totalEntries: number
   winningEntries: number
   winRate: number
+  totalPointsEarned: number
+  totalPointsUsed: number
 }
 
 // Mock bruger data for test@test.dk
@@ -46,7 +50,9 @@ export const mockUserEntries: UserEntry[] = [
     amountPaid: 15, // 3 x 5 kr
     entryDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
     status: 'active',
-    result: 'pending'
+    result: 'pending',
+    pointsEarned: 20, // 15 kr * 1.3 (gold tier) + 5% amount bonus (100kr+)
+    pointsUsed: 0
   },
   {
     id: '2',
@@ -58,7 +64,9 @@ export const mockUserEntries: UserEntry[] = [
     amountPaid: 50, // 2 x 25 kr
     entryDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
     status: 'active',
-    result: 'pending'
+    result: 'pending',
+    pointsEarned: 65, // 50 kr * 1.3 (gold tier)
+    pointsUsed: 0
   },
   {
     id: '3',
@@ -70,7 +78,9 @@ export const mockUserEntries: UserEntry[] = [
     amountPaid: 8,
     entryDate: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
     status: 'active',
-    result: 'pending'
+    result: 'pending',
+    pointsEarned: 10, // 8 kr * 1.3 (gold tier)
+    pointsUsed: 0
   },
   {
     id: '4',
@@ -82,7 +92,9 @@ export const mockUserEntries: UserEntry[] = [
     amountPaid: 50, // 5 x 10 kr
     entryDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), // 15 days ago
     status: 'completed',
-    result: 'lost'
+    result: 'lost',
+    pointsEarned: 50, // 50 kr * 1.0 (bronze tier at the time)
+    pointsUsed: 0
   },
   {
     id: '5',
@@ -95,7 +107,9 @@ export const mockUserEntries: UserEntry[] = [
     entryDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), // 20 days ago
     status: 'completed',
     result: 'won',
-    winningAmount: 4500
+    winningAmount: 4500,
+    pointsEarned: 12, // 12 kr * 1.0 (bronze tier at the time)
+    pointsUsed: 0
   },
   {
     id: '6',
@@ -108,7 +122,9 @@ export const mockUserEntries: UserEntry[] = [
     entryDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
     status: 'completed',
     result: 'won',
-    winningAmount: 1000
+    winningAmount: 1000,
+    pointsEarned: 12, // 12 kr * 1.0 (bronze tier at the time)
+    pointsUsed: 400 // Used 400 points for 2 kr discount (200:1 rate)
   }
 ]
 
@@ -140,11 +156,13 @@ export const mockUserWinnings: UserWinning[] = [
 ]
 
 export const mockUserStats: UserStats = {
-  totalSpent: 147, // Sum of all amountPaid
-  totalWon: 5500, // Sum of all winningAmount
+  totalSpent: 2800, // Match AuthContext data
+  totalWon: 5500, // Sum of all winningAmount  
   totalEntries: 6,
   winningEntries: 2,
-  winRate: 33.3 // (2/6) * 100
+  winRate: 33.3, // (2/6) * 100
+  totalPointsEarned: 800, // Current points balance (match AuthContext)
+  totalPointsUsed: 400 // Sum of all pointsUsed (adjusted for new redemption rate)
 }
 
 // Function to get user data by user ID

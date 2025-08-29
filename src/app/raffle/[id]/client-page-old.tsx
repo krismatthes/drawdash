@@ -15,13 +15,10 @@ import TrustBadges from '@/components/TrustBadges'
 import SmoothCounter from '@/components/SmoothCounter'
 import PremiumButton from '@/components/PremiumButton'
 import MobileFloatingButton from '@/components/MobileFloatingButton'
-import PointsCalculationDisplay from '@/components/PointsCalculationDisplay'
 import { mockRaffles } from '@/lib/mockData'
 import { Raffle } from '@/types/raffle'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { LoyaltyCalculator } from '@/lib/loyalty'
-import { LOYALTY_TIERS } from '@/types/loyalty'
 
 export default function ClientRafflePage() {
   const params = useParams()
@@ -49,21 +46,13 @@ export default function ClientRafflePage() {
     setShowPayment(true)
   }
 
-  const handlePaymentSuccess = (pointsUsed?: number) => {
+  const handlePaymentSuccess = () => {
     setShowPayment(false)
     
     // Show success message with link to account page
-    let message = `Du har succesfuldt deltaget i lodtrækningen med ${ticketQuantity} billet(ter)! `
-    
-    if (pointsUsed && pointsUsed > 0) {
-      message += `\n\nDu brugte ${pointsUsed.toLocaleString('da-DK')} DrawDash Rewards points på dette køb.`
-      
-      if (pointsCalculation) {
-        message += `\nDu optjener ${pointsCalculation.totalPoints.toLocaleString('da-DK')} nye points for denne transaktion.`
-      }
-    }
-    
-    message += `\n\nHeld og lykke! Du kan se alle dine deltagelser på din konto side.`
+    const message = `Du har succesfuldt deltaget i lodtrækningen med ${ticketQuantity} billet(ter)! 
+
+Held og lykke! Du kan se alle dine deltagelser på din konto side.`
     
     if (confirm(message + '\n\nVil du gå til din konto side nu?')) {
       router.push('/account?tab=active')
@@ -91,23 +80,16 @@ export default function ClientRafflePage() {
 
   const progressPercentage = (raffle.soldTickets / raffle.totalTickets) * 100
   const totalCost = ticketQuantity * raffle.ticketPrice
-  
-  // Calculate points that would be earned
-  const pointsCalculation = user ? LoyaltyCalculator.calculatePointsEarned(
-    totalCost,
-    ticketQuantity,
-    user.loyaltyTier
-  ) : null
 
   return (
-    <div className="min-h-screen relative bg-white">
+    <div className="min-h-screen relative">
       <GradientMesh variant="hero" />
       <PremiumHeader />
       
       <main className="relative">
-        {/* Premium Hero Banner - Smaller but Beautiful */}
-        <div className="relative h-[40vh] sm:h-[45vh] overflow-hidden">
-          {/* Background Image with Premium Effects */}
+        {/* WOW Hero Section */}
+        <div className="relative h-[45vh] sm:h-[55vh] lg:h-[65vh] overflow-hidden">
+          {/* Background Image */}
           <div className="absolute inset-0">
             <Image
               src={raffle.image}
@@ -117,107 +99,115 @@ export default function ClientRafflePage() {
               priority
               sizes="100vw"
             />
-            {/* Premium gradient overlays */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10" />
+            {/* Multi-layer gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
           </div>
 
-          {/* Subtle floating particles */}
+          {/* Floating particles animation */}
           <div className="absolute inset-0 overflow-hidden">
-            {[...Array(8)].map((_, i) => (
+            {[...Array(20)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute w-1 h-1 bg-white/30 rounded-full"
+                className="absolute w-2 h-2 bg-white/20 rounded-full"
                 initial={{
-                  x: Math.random() * 800,
-                  y: 400,
+                  x: Math.random() * 1200,
+                  y: 800,
                 }}
                 animate={{
                   y: -10,
-                  x: Math.random() * 800,
+                  x: Math.random() * 1200,
                 }}
                 transition={{
-                  duration: Math.random() * 8 + 12,
+                  duration: Math.random() * 10 + 10,
                   repeat: Infinity,
-                  delay: Math.random() * 8,
+                  delay: Math.random() * 10,
                 }}
               />
             ))}
           </div>
 
-          {/* Hero Content - Centered and Clean */}
+          {/* Hero Content */}
           <div className="relative h-full flex items-center">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-              <div className="max-w-3xl">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+              <div className="max-w-4xl w-full overflow-hidden">
                 
                 {/* Status badges */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-wrap items-center gap-3 mb-4"
+                  className="flex flex-wrap items-center gap-2 sm:gap-4 mb-4 sm:mb-6"
                 >
+                  <LiveIndicator variant="live" size="lg" />
                   {raffle.isInstantWin && (
-                    <div className="bg-gradient-to-r from-blue-500 to-pink-500 text-white px-3 py-1.5 rounded-full text-sm font-bold">
+                    <div className="bg-gradient-to-r from-blue-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-bold animate-pulse">
                       ⚡ INSTANT WIN
                     </div>
                   )}
-                  <div className="glass backdrop-blur-md text-white px-3 py-1.5 rounded-full text-sm font-medium">
-                    {raffle.soldTickets} deltagere
+                  <div className="glass text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
+                    {raffle.soldTickets} aktive deltagere
                   </div>
                 </motion.div>
 
-                {/* Title */}
+                {/* Main Title */}
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="mb-5"
+                  className="mb-4 sm:mb-5"
                 >
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight">
-                    Vind denne {raffle.title}
+                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight">
+                    <span className="block">VIND</span>
+                    <span className="block text-gradient">
+                      DENNE
+                    </span>
+                    <span className="block text-base sm:text-lg md:text-xl lg:text-2xl font-bold mt-1 sm:mt-2 break-words">
+                      {raffle.title.toUpperCase()}
+                    </span>
                   </h1>
                 </motion.div>
 
-                {/* Prize Value with Premium Styling */}
+                {/* Prize Value - The WOW Factor */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring" }}
-                  className="mb-6"
+                  transition={{ delay: 0.3, type: "spring" }}
+                  className="mb-6 sm:mb-8"
                 >
-                  <div className="glass backdrop-blur-xl rounded-xl p-4 inline-block border-white/20">
-                    <div className="text-white/80 text-sm font-medium mb-1">
+                  <div className="glass backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 inline-block border-white/30 max-w-full">
+                    <div className="text-white/90 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-2">
                       TOTAL VÆRDI
                     </div>
-                    <div className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-pink-300 to-purple-300">
+                    <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-pink-400 to-purple-400">
                       {raffle.prize.value.toLocaleString('da-DK')} kr
                     </div>
                   </div>
                 </motion.div>
 
-                {/* Urgency message with premium styling */}
+                {/* Urgency message */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="mb-6"
+                  transition={{ delay: 0.5 }}
+                  className="mb-6 sm:mb-8"
                 >
-                  <div className="bg-amber-500/20 backdrop-blur-md border border-amber-400/30 rounded-lg px-4 py-2 inline-block">
-                    <div className="flex items-center gap-2 text-white text-sm">
-                      <div className="w-2 h-2 bg-amber-300 rounded-full animate-pulse" />
-                      <span className="font-medium">
-                        Kun {raffle.totalTickets - raffle.soldTickets} billetter tilbage
+                  <div className="bg-amber-500/20 backdrop-blur-md border border-amber-400/30 rounded-lg sm:rounded-xl p-3 sm:p-4 inline-block">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-white text-sm sm:text-base">
+                      <div className="w-3 h-3 bg-amber-300 rounded-full animate-pulse" />
+                      <span className="font-semibold">
+                        Kun {raffle.totalTickets - raffle.soldTickets} tilbage!
                       </span>
+                      <span className="text-amber-200">⚡ Handl nu!</span>
                     </div>
                   </div>
                 </motion.div>
 
-                {/* CTA Buttons with Premium Styling */}
+                {/* CTA Section */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="flex flex-col sm:flex-row gap-3"
+                  transition={{ delay: 0.7 }}
+                  className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-full"
                 >
                   <PremiumButton
                     variant="premium"
@@ -234,22 +224,59 @@ export default function ClientRafflePage() {
                     onClick={() => {
                       document.getElementById('details')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                     }}
-                    className="glass backdrop-blur-md text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 border border-white/20 hover:bg-white/10"
+                    className="glass text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300"
                   >
                     📖 Se detaljer
                   </button>
                 </motion.div>
+
+                {/* Social Proof */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.9 }}
+                  className="mt-6 sm:mt-8"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-white/70 text-xs sm:text-sm">
+                    <div className="flex items-center gap-2">
+                      <span>👥</span>
+                      <span>{raffle.participants} personer deltager</span>
+                    </div>
+                    <span className="hidden sm:inline">•</span>
+                    <div className="flex items-center gap-2">
+                      <span>🔥</span>
+                      <span>Mest populære denne uge</span>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
             </div>
           </div>
+
+          {/* Scroll indicator */}
+          <motion.div
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <div className="bg-white/20 backdrop-blur-md rounded-full p-3 border border-white/30">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </div>
+          </motion.div>
         </div>
 
+        {/* Smooth Transition Section */}
+        <div className="relative -mt-16 z-10">
+          <div className="bg-gradient-to-b from-transparent via-white/40 to-white h-24"></div>
+        </div>
 
-        {/* Main Content Grid with Premium Cards */}
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        {/* Main Content Grid */}
+        <div className="max-w-7xl mx-auto px-4 pb-12 relative z-10 -mt-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
             
-            {/* Left: Product Gallery & Details (60%) */}
+            {/* Left: Product Gallery (60%) */}
             <div className="lg:col-span-3 space-y-6">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -263,7 +290,7 @@ export default function ClientRafflePage() {
                 />
               </motion.div>
 
-              {/* Prize Details Card with Premium Styling */}
+              {/* Prize Details Card */}
               <motion.div 
                 id="details"
                 className="card-premium p-6"
@@ -274,12 +301,12 @@ export default function ClientRafflePage() {
                 <h2 className="text-xl font-semibold text-slate-900 mb-6">Præmiedetaljer</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4">
+                  <div className="bg-slate-50 rounded-xl p-4">
                     <div className="text-sm text-slate-600 mb-1">Præmie</div>
                     <div className="font-semibold text-slate-900">{raffle.prize.name}</div>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4">
+                  <div className="bg-slate-50 rounded-xl p-4">
                     <div className="text-sm text-slate-600 mb-1">Værdi</div>
                     <div className="font-bold text-2xl text-gradient">
                       <SmoothCounter 
@@ -296,112 +323,70 @@ export default function ClientRafflePage() {
                 </div>
               </motion.div>
 
-              {/* Progress/Sold Stats - Redesigned */}
+              {/* Trust Badges */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="card-premium p-6"
               >
-                <h3 className="text-lg font-semibold text-slate-900 mb-6">Lodtrækningsstatus</h3>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center">
-                    <div className="text-sm text-blue-600 font-medium mb-1">Solgte billetter</div>
-                    <div className="text-2xl font-bold text-blue-700">
-                      <SmoothCounter value={raffle.soldTickets} />
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 text-center">
-                    <div className="text-sm text-slate-600 font-medium mb-1">Total billetter</div>
-                    <div className="text-2xl font-bold text-slate-700">{raffle.totalTickets}</div>
-                  </div>
-                  
-                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center">
-                    <div className="text-sm text-green-600 font-medium mb-1">Solgt procent</div>
-                    <div className="text-2xl font-bold text-green-700">{Math.round(progressPercentage)}%</div>
-                  </div>
-                </div>
-                
-                {/* Progress Bar */}
-                <div className="relative">
-                  <div className="bg-slate-200 rounded-full h-3 mb-2">
-                    <div 
-                      className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-1000"
-                      style={{ width: `${progressPercentage}%` }}
-                    ></div>
-                  </div>
-                  <div className="flex justify-between text-xs text-slate-500">
-                    <span>0</span>
-                    <span className="font-medium text-slate-700">{raffle.soldTickets} / {raffle.totalTickets}</span>
-                    <span>{raffle.totalTickets}</span>
-                  </div>
-                </div>
-                
-                {/* Logo-themed Countdown */}
-                <div className="mt-6 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-xl p-5 relative overflow-hidden shadow-lg">
-                  {/* Glass overlay for depth */}
-                  <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-xl"></div>
-                  
-                  {/* Content */}
-                  <div className="relative text-center">
-                    <div className="flex items-center justify-center gap-2 mb-3">
-                      <div className="w-2 h-2 bg-white/80 rounded-full animate-pulse"></div>
-                      <span className="text-white font-bold text-sm uppercase tracking-wide">
-                        🔥 Slutter om
-                      </span>
-                      <div className="w-2 h-2 bg-white/80 rounded-full animate-pulse"></div>
-                    </div>
-                    
-                    <div className="text-white font-bold">
-                      <CountdownTimer endDate={raffle.endDate} />
-                    </div>
-                    
-                    <div className="mt-3 text-xs text-white/80 font-medium">
-                      Handl hurtigt før tiden udløber!
-                    </div>
-                  </div>
-                  
-                  {/* Decorative shimmer effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
-                  
-                  {/* Corner accents */}
-                  <div className="absolute top-2 right-2 w-1 h-1 bg-white/60 rounded-full animate-ping"></div>
-                  <div className="absolute bottom-2 left-2 w-1 h-1 bg-white/60 rounded-full animate-ping" style={{animationDelay: '1s'}}></div>
-                </div>
+                <TrustBadges layout="grid" variant="detailed" />
               </motion.div>
             </div>
 
             {/* Right: PROMINENT Action Panel (40%) */}
             <div className="lg:col-span-2" id="actions">
               <motion.div
-                className="lg:sticky lg:top-8 space-y-6 mobile-safe-area"
+                className="lg:sticky lg:top-8 space-y-6 lg:space-y-8 mobile-safe-area"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                {/* Urgency Alert */}
-                <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 rounded-xl text-center">
-                  <div className="flex items-center justify-center gap-2 mb-1">
-                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                    <span className="font-bold text-sm">KUN {raffle.totalTickets - raffle.soldTickets} TILBAGE!</span>
+                {/* Status & Progress Card */}
+                <div className="card-premium p-6">
+                  
+                  {/* Urgency Header */}
+                  <div className="bg-gradient-to-r from-blue-600 to-pink-500 text-white p-4 rounded-xl mb-6 text-center">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                      <span className="font-bold text-sm">KUN {raffle.totalTickets - raffle.soldTickets} TILBAGE!</span>
+                    </div>
+                    <div className="text-xs opacity-90">⚡ {Math.round(progressPercentage)}% solgt</div>
                   </div>
-                  <div className="text-xs opacity-90">Handl hurtigt • {Math.round(progressPercentage)}% solgt</div>
+
+                  {/* Prize Display */}
+                  <div className="text-center mb-6">
+                    <div className="text-sm font-semibold text-blue-600 mb-3">🏆 VIND</div>
+                    <div className="text-xl font-black text-slate-900 mb-3">{raffle.title}</div>
+                    <div className="text-3xl font-black bg-gradient-to-r from-blue-500 to-pink-500 bg-clip-text text-transparent mb-4">
+                      {raffle.prize.value.toLocaleString('da-DK')} kr
+                    </div>
+                    
+                    {/* Progress Ring */}
+                    <div className="flex items-center justify-center mb-3">
+                      <ProgressRing 
+                        progress={progressPercentage}
+                        size="md"
+                        label="Solgt"
+                        showValue={false}
+                      />
+                    </div>
+                    <div className="text-sm font-bold text-slate-900">
+                      <SmoothCounter value={raffle.soldTickets} /> / {raffle.totalTickets}
+                    </div>
+                  </div>
+
+                  {/* Countdown Timer */}
+                  <div className="text-center bg-slate-900 text-white rounded-xl p-4">
+                    <div className="text-xs font-semibold mb-2 text-blue-400">⏰ SLUTTER I:</div>
+                    <CountdownTimer endDate={raffle.endDate} />
+                  </div>
                 </div>
 
-                {/* Purchase Panel - Moved up */}
+                {/* Purchase Panel */}
                 <div className="card-premium p-6">
                   <div className="text-center mb-6">
-                    <div className="text-sm text-slate-600 font-semibold mb-2 uppercase tracking-wide">
-                      🎯 Deltag i lodtrækningen
-                    </div>
-                    <div className="text-2xl font-black text-slate-900">
-                      Værdi: <span className="text-green-600">{raffle.prize.value.toLocaleString('da-DK')} kr</span>
-                    </div>
-                    <div className="text-sm text-slate-600 mt-2">
-                      Billetpris: kun {raffle.ticketPrice} kr pr. billet
-                    </div>
+                    <div className="text-2xl font-black text-slate-900 mb-2">🎯 KØB BILLETTER</div>
+                    <div className="text-sm text-slate-600 font-semibold">Handl hurtigt!</div>
                   </div>
                   
                   {/* Quick Select Buttons */}
@@ -467,16 +452,6 @@ export default function ClientRafflePage() {
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Points Earning Display */}
-                  {isAuthenticated && pointsCalculation && (
-                    <div className="mb-6">
-                      <PointsCalculationDisplay 
-                        calculation={pointsCalculation}
-                        animate
-                      />
-                    </div>
-                  )}
 
                   {/* Login Required Notice */}
                   {!isAuthenticated && (
@@ -523,7 +498,6 @@ export default function ClientRafflePage() {
                     {[
                       { icon: '🎫', text: 'Vælg antal billetter' },
                       { icon: '💳', text: 'Gennemfør sikker betaling' },
-                      { icon: '🎯', text: 'Optjen DrawDash Rewards points' },
                       { icon: '⏰', text: 'Vent på lodtrækning' },
                       { icon: '🏆', text: 'Vinder annonceres live' }
                     ].map((step, index) => (
@@ -535,18 +509,6 @@ export default function ClientRafflePage() {
                       </div>
                     ))}
                   </div>
-                  
-                  {isAuthenticated && user && (
-                    <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-                      <div className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                        🎆 DrawDash Rewards Status
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-slate-600">Din tier: <span className="font-semibold text-slate-900">{LOYALTY_TIERS[user.loyaltyTier || 'bronze'].name}</span></span>
-                        <span className="text-blue-600 font-bold">{user.points} points</span>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </motion.div>
             </div>
@@ -557,7 +519,7 @@ export default function ClientRafflePage() {
       {/* Mobile Floating Action Button */}
       <MobileFloatingButton
         label={isAuthenticated 
-          ? (raffle.isInstantWin ? 'Spil Nu' : 'Deltag Nu')
+          ? (raffle.isInstantWin ? '⚡ Spil Nu' : 'Deltag Nu')
           : 'Log Ind'
         }
         icon={isAuthenticated ? '🎯' : '👤'}

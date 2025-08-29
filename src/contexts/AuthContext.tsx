@@ -1,8 +1,9 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { LoyaltyUser } from '@/types/loyalty'
 
-interface User {
+interface User extends LoyaltyUser {
   id: string
   email: string
   firstName: string
@@ -68,7 +69,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: email,
           firstName: 'Admin',
           lastName: 'Bruger',
-          isAdmin: true
+          isAdmin: true,
+          points: 5000,
+          totalSpent: 12500,
+          loyaltyTier: 'diamond'
         }
       } else if (email === 'test@test.dk' && password === 'test123') {
         mockUser = {
@@ -76,7 +80,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: email,
           firstName: 'Test',
           lastName: 'Bruger',
-          isAdmin: false
+          isAdmin: false,
+          points: 800,
+          totalSpent: 2800,
+          loyaltyTier: 'gold'
         }
       } else if (email && password.length >= 3) {
         // Allow any email/password combo for demo
@@ -85,7 +92,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: email,
           firstName: email.split('@')[0],
           lastName: 'Bruger',
-          isAdmin: email.includes('admin')
+          isAdmin: email.includes('admin'),
+          points: 180,
+          totalSpent: 300,
+          loyaltyTier: 'bronze'
         }
       }
       
@@ -114,7 +124,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: userData.email,
         firstName: userData.firstName,
         lastName: userData.lastName,
-        isAdmin: false
+        isAdmin: false,
+        points: 0,
+        totalSpent: 0,
+        loyaltyTier: 'bronze'
       }
       
       setUser(newUser)

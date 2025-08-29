@@ -8,26 +8,32 @@ import {
   useStripe,
   useElements
 } from '@stripe/react-stripe-js'
+import { useAuth } from '@/contexts/AuthContext'
+import PointsRedemption from './PointsRedemption'
+import { PointsRedemption as PointsRedemptionType } from '@/types/loyalty'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 interface PaymentFormProps {
   amount: number
-  onSuccess: () => void
+  onSuccess: (pointsUsed?: number) => void
   onCancel: () => void
 }
 
 interface CheckoutFormProps {
   amount: number
-  onSuccess: () => void
+  onSuccess: (pointsUsed?: number) => void
   onCancel: () => void
 }
 
 function CheckoutForm({ amount, onSuccess, onCancel }: CheckoutFormProps) {
   const stripe = useStripe()
   const elements = useElements()
+  const { user } = useAuth()
   const [isProcessing, setIsProcessing] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string>('')
+  const [pointsRedemption, setPointsRedemption] = useState<PointsRedemptionType | null>(null)
+  const finalAmount = amount - (pointsRedemption?.discountAmount || 0)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -65,8 +71,9 @@ function CheckoutForm({ amount, onSuccess, onCancel }: CheckoutFormProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: amount * 100, // Convert to cents
+          amount: finalAmount * 100, // Convert to cents
           currency: 'gbp',
+          pointsUsed: pointsRedemption?.pointsToRedeem || 0
         }),
       })
 
@@ -97,7 +104,7 @@ function CheckoutForm({ amount, onSuccess, onCancel }: CheckoutFormProps) {
       if (error) {
         setErrorMessage(error.message || 'Payment failed')
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        onSuccess()
+        onSuccess(pointsRedemption?.pointsToRedeem || 0)
       }
     } catch (error) {
       setErrorMessage('Payment failed. Please try again.')
@@ -118,11 +125,47 @@ function CheckoutForm({ amount, onSuccess, onCancel }: CheckoutFormProps) {
           </button>
         </div>
 
-        <div className="bg-green-50 p-3 rounded-lg mb-6">
-          <div className="flex justify-between">
-            <span className="font-medium">Total Amount:</span>
-            <span className="text-xl font-bold text-green-600">£{amount.toFixed(2)}</span>
+        {/* Points Redemption Section */}
+        {user && (
+          <div className="mb-6">
+            <PointsRedemption
+              userPoints={user.points || 0}
+              userTier={user.loyaltyTier || 'none'}
+              cartAmount={amount}
+              onRedemptionChange={setPointsRedemption}
+            />
           </div>
+        )}
+        
+        <div className="bg-green-50 p-3 rounded-lg mb-6">
+          {pointsRedemption && (
+            <>
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-slate-600">Oprindelig pris:</span>
+                <span className="text-slate-900">{amount.toLocaleString('da-DK')} kr</span>
+              </div>
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-green-600">Points rabat:</span>
+                <span className="text-green-600">-{pointsRedemption.discountAmount.toLocaleString('da-DK')} kr</span>
+              </div>
+              <div className="border-t border-green-200 pt-2">
+                <div className="flex justify-between">
+                  <span className="font-medium">Total Amount:</span>
+                  <span className="text-xl font-bold text-green-600">
+                    {finalAmount.toLocaleString('da-DK')} kr
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
+          {!pointsRedemption && (
+            <div className="flex justify-between">
+              <span className="font-medium">Total Amount:</span>
+              <span className="text-xl font-bold text-green-600">
+                {finalAmount.toLocaleString('da-DK')} kr
+              </span>
+            </div>
+          )}
         </div>
 
         {errorMessage && (
@@ -236,7 +279,7 @@ function CheckoutForm({ amount, onSuccess, onCancel }: CheckoutFormProps) {
               disabled={isProcessing || !stripe}
               className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50"
             >
-              {isProcessing ? 'Processing...' : `Pay £${amount.toFixed(2)}`}
+              {isProcessing ? 'Processing...' : `Betal ${finalAmount.toLocaleString('da-DK')} kr`}
             </button>
           </div>
         </form>
