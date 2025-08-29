@@ -8,6 +8,11 @@ interface User {
   firstName: string
   lastName: string
   isAdmin: boolean
+  phone?: string
+  address?: string
+  city?: string
+  postalCode?: string
+  country?: string
 }
 
 interface AuthContextType {
