@@ -49,7 +49,7 @@ export default function Header() {
             {isAuthenticated ? (
               <>
                 <Link href="/account" className="text-sm font-medium text-gray-600 hover:text-green-600 transition-colors duration-200">
-                  Min Konto
+                  Min konto
                 </Link>
                 {user?.isAdmin && (
                   <Link href="/admin" className="text-sm font-medium text-green-600 hover:text-green-700 transition-colors duration-200 bg-green-50 px-2 py-1 rounded-full">
@@ -103,7 +103,7 @@ export default function Header() {
               {isAuthenticated ? (
                 <>
                   <div className="px-3 py-2 text-gray-700">Hej, {user?.firstName}!</div>
-                  <Link href="/account" className="block px-3 py-2 text-gray-700">Min Konto</Link>
+                  <Link href="/account" className="block px-3 py-2 text-gray-700">Min konto</Link>
                   {user?.isAdmin && (
                     <Link href="/admin" className="block px-3 py-2 text-green-600">Admin</Link>
                   )}
@@ -111,7 +111,7 @@ export default function Header() {
                     onClick={logout}
                     className="block px-3 py-2 text-gray-700 text-left w-full"
                   >
-                    Log Ud
+                    Log ud
                   </button>
                 </>
               ) : (

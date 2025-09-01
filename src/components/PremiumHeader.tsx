@@ -159,7 +159,7 @@ export default function PremiumHeader() {
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                               </div>
-                              <span className="font-medium">Min Konto</span>
+                              <span className="font-medium">Min konto</span>
                             </motion.div>
                           </Link>
                           
@@ -179,7 +179,7 @@ export default function PremiumHeader() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                               </svg>
                             </div>
-                            <span className="font-medium">Log Ud</span>
+                            <span className="font-medium">Log ud</span>
                           </motion.button>
                         </div>
                       </motion.div>
@@ -195,7 +195,7 @@ export default function PremiumHeader() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    Log Ind
+                    Log ind
                   </motion.button>
                 </Link>
                 
@@ -212,7 +212,7 @@ export default function PremiumHeader() {
                       transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                     />
                     <div className="relative">
-                      <span>Tilmeld Dig</span>
+                      <span>Tilmeld dig</span>
                     </div>
                   </motion.div>
                 </Link>
@@ -295,7 +295,7 @@ export default function PremiumHeader() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                           </svg>
                         </div>
-                        <span className="font-medium">Min Konto</span>
+                        <span className="font-medium">Min konto</span>
                       </Link>
                       
                       {user?.isAdmin && (
@@ -317,7 +317,7 @@ export default function PremiumHeader() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
                           </div>
-                          <span className="font-medium">Log Ud</span>
+                          <span className="font-medium">Log ud</span>
                         </button>
                       </div>
                     </div>
@@ -325,10 +325,10 @@ export default function PremiumHeader() {
                     <div className="space-y-2">
                       <Link href="/login" className="flex items-center gap-3 px-4 py-3 text-slate-700 hover:bg-slate-50 rounded-xl">
                         <span>🔑</span>
-                        <span>Log Ind</span>
+                        <span>Log ind</span>
                       </Link>
                       <Link href="/register" className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold">
-                        <span>Tilmeld Dig</span>
+                        <span>Tilmeld dig</span>
                       </Link>
                     </div>
                   )}

@@ -154,7 +154,7 @@ function LoginContent() {
                   disabled={isLoading}
                   className="w-full font-bold"
                 >
-                  {isLoading ? '🔄 Logger ind...' : '🚀 Log Ind'}
+                  {isLoading ? '🔄 Logger ind...' : '🚀 Log ind'}
                 </PremiumButton>
               </div>
             </form>

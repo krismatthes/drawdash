@@ -1,10 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Raffle } from '@/types/raffle'
-import { useLanguage } from '@/contexts/LanguageContext'
+import PremiumRaffleCard from './PremiumRaffleCard'
 
 interface RaffleCarouselProps {
   raffles: Raffle[]
@@ -14,13 +13,12 @@ export default function RaffleCarousel({ raffles }: RaffleCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  const { t } = useLanguage()
 
   useEffect(() => {
     if (isAutoPlaying) {
       intervalRef.current = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % raffles.length)
-      }, 4000)
+      }, 8000)
     } else {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
@@ -37,116 +35,122 @@ export default function RaffleCarousel({ raffles }: RaffleCarouselProps) {
   const goToSlide = (index: number) => {
     setCurrentIndex(index)
     setIsAutoPlaying(false)
-    setTimeout(() => setIsAutoPlaying(true), 5000)
+    setTimeout(() => setIsAutoPlaying(true), 15000)
   }
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % raffles.length)
     setIsAutoPlaying(false)
-    setTimeout(() => setIsAutoPlaying(true), 5000)
+    setTimeout(() => setIsAutoPlaying(true), 15000)
   }
 
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev - 1 + raffles.length) % raffles.length)
     setIsAutoPlaying(false)
-    setTimeout(() => setIsAutoPlaying(true), 5000)
+    setTimeout(() => setIsAutoPlaying(true), 15000)
   }
 
   if (raffles.length === 0) return null
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto">
-      <div className="relative h-80 rounded-2xl overflow-hidden shadow-lg bg-white border border-slate-200">
-        <div 
-          className="flex transition-transform duration-500 ease-in-out h-full"
-          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-        >
-          {raffles.map((raffle, index) => (
-            <div key={raffle.id} className="w-full flex-shrink-0 flex">
-              <div className="w-1/2 relative">
-                <Image
-                  src={raffle.image}
-                  alt={raffle.title}
-                  fill
-                  className="object-cover"
-                />
-                {raffle.isInstantWin && (
-                  <div className="absolute top-4 left-4 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                    ⚡ INSTANT WIN
-                  </div>
-                )}
-              </div>
-              <div className="w-1/2 p-8 flex flex-col justify-center">
-                <h3 className="text-2xl font-light mb-3 text-slate-800">{raffle.title}</h3>
-                <p className="text-slate-600 mb-4 leading-relaxed">{raffle.description}</p>
-                
-                <div className="mb-6">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-slate-500">Præmiværdi</span>
-                    <span className="font-medium text-slate-800">{raffle.prize.value.toLocaleString()} kr</span>
-                  </div>
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-sm text-slate-500">Billetpris</span>
-                    <span className="font-medium text-blue-600">{raffle.ticketPrice} kr</span>
-                  </div>
-                  
-                  <div className="w-full bg-slate-200 rounded-full h-2 mb-2">
-                    <div 
-                      className="bg-gradient-to-r from-blue-400 to-blue-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${(raffle.soldTickets / raffle.totalTickets) * 100}%` }}
-                    ></div>
-                  </div>
-                  <div className="flex justify-between text-xs text-slate-500">
-                    <span>{raffle.soldTickets} solgte</span>
-                    <span>{raffle.totalTickets} total</span>
-                  </div>
+    <div className="relative max-w-6xl mx-auto">
+      {/* Main Carousel Container */}
+      <div className="relative overflow-visible">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {Array.from({ length: Math.min(3, raffles.length) }).map((_, slideIndex) => {
+            const raffleIndex = (currentIndex + slideIndex) % raffles.length
+            const raffle = raffles[raffleIndex]
+            
+            return (
+              <motion.div
+                key={`${raffleIndex}-${currentIndex}`}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ 
+                  duration: 0.6,
+                  ease: "easeOut",
+                  layout: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }
+                }}
+                className="relative"
+              >
+                <div className="transform hover:scale-105 transition-all duration-300">
+                  <PremiumRaffleCard raffle={raffle} index={raffleIndex} />
                 </div>
                 
-                <Link
-                  href={`/raffle/${raffle.id}`}
-                  className="bg-blue-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-600 transition-all shadow-sm text-center"
-                >
-                  Deltag Nu
-                </Link>
-              </div>
-            </div>
-          ))}
+                {/* Featured Badge for first item */}
+                {raffleIndex === 0 && (
+                  <div className="absolute -top-4 -right-4 z-10">
+                    <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
+                      🔥 MEST POPULÆR
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )
+          })}
         </div>
       </div>
 
-      {/* Navigation arrows */}
-      <button
-        onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 transition-all"
-      >
-        <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-      
-      <button
-        onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 transition-all"
-      >
-        <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
-
-      {/* Dots indicator */}
-      <div className="flex justify-center mt-6 space-x-2">
-        {raffles.map((_, index) => (
+      {/* Navigation Arrows */}
+      {raffles.length > 1 && (
+        <>
           <button
-            key={index}
-            onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all ${
-              index === currentIndex
-                ? 'bg-blue-500 scale-110'
-                : 'bg-slate-300 hover:bg-slate-400'
-            }`}
-          />
-        ))}
-      </div>
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-white/50 flex items-center justify-center hover:bg-white transition-all duration-300 group"
+          >
+            <svg 
+              className="w-5 h-5 text-slate-700 group-hover:text-slate-900 transition-colors" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-white/50 flex items-center justify-center hover:bg-white transition-all duration-300 group"
+          >
+            <svg 
+              className="w-5 h-5 text-slate-700 group-hover:text-slate-900 transition-colors" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
+
+      {/* Dots Indicator */}
+      {raffles.length > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          {raffles.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`transition-all duration-300 ${
+                index === currentIndex
+                  ? 'w-8 h-3 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full'
+                  : 'w-3 h-3 bg-slate-300 hover:bg-slate-400 rounded-full'
+              }`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Auto-play indicator */}
+      {isAutoPlaying && raffles.length > 1 && (
+        <div className="absolute top-4 left-4 z-20">
+          <div className="bg-black/20 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-2">
+            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+            <span className="text-white text-xs font-medium">AUTO</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

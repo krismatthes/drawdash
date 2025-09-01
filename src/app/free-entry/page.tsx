@@ -20,7 +20,7 @@ export default function FreeEntryPage() {
             className="text-center mb-16"
           >
             <h1 className="text-4xl font-bold text-slate-900 mb-4">
-              Gratis Deltagelse
+              Gratis deltagelse
             </h1>
             <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
               Deltag helt gratis ved at sende et postkort. Du får 1 billet og samme vindersandsynlighed som betalte billetter.
@@ -35,7 +35,7 @@ export default function FreeEntryPage() {
             transition={{ delay: 0.1 }}
           >
             <h2 className="text-xl font-semibold text-slate-900 mb-4">
-              Krav: DrawDash Konto
+              Krav: DrawDash konto
             </h2>
             <p className="text-slate-600 mb-6">
               Du skal have en DrawDash konto med din fulde adresse tilføjet før du sender postkortet. 
@@ -47,7 +47,7 @@ export default function FreeEntryPage() {
               onClick={() => window.open('/login', '_blank')}
               className="font-medium"
             >
-              Log Ind på DrawDash
+              Log ind på DrawDash
             </PremiumButton>
           </motion.div>
 
@@ -58,7 +58,7 @@ export default function FreeEntryPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <h2 className="text-xl font-semibold text-slate-900 mb-8">Sådan Deltager Du</h2>
+            <h2 className="text-xl font-semibold text-slate-900 mb-8">Sådan deltager du</h2>
             
             <div className="space-y-8">
               <div className="border-l-2 border-l-slate-200 pl-6">
@@ -101,7 +101,7 @@ export default function FreeEntryPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <h2 className="text-xl font-semibold text-slate-900 mb-6">Vigtige Regler</h2>
+            <h2 className="text-xl font-semibold text-slate-900 mb-6">Vigtige regler</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
@@ -140,7 +140,7 @@ export default function FreeEntryPage() {
                 onClick={() => window.open('/raffles', '_self')}
                 className="font-medium"
               >
-                Se Aktive Lodtrækninger
+                Se aktive lodtrækninger
               </PremiumButton>
               
               <PremiumButton
@@ -149,7 +149,7 @@ export default function FreeEntryPage() {
                 onClick={() => window.open('/login', '_blank')}
                 className="font-medium"
               >
-                Log Ind
+                Log ind
               </PremiumButton>
             </div>
             

@@ -26,8 +26,8 @@ export default function PremiumRaffleCard({ raffle, index = 0 }: PremiumRaffleCa
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
     >
-      <Link href={`/raffle/${raffle.id}`} className="block group">
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-2xl transition-all duration-500 transform group-hover:scale-[1.02] relative">
+      <Link href={`/raffle/${raffle.id}`} className="block group h-full">
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-2xl transition-all duration-500 transform group-hover:scale-[1.02] relative h-full flex flex-col min-h-[600px]">
           
           {/* Image Section */}
           <div className="relative h-56 overflow-hidden">
@@ -90,7 +90,7 @@ export default function PremiumRaffleCard({ raffle, index = 0 }: PremiumRaffleCa
           </div>
 
           {/* Content Section */}
-          <div className="p-6">
+          <div className="p-6 flex-1 flex flex-col">
             {/* Title and Description */}
             <div className="mb-4">
               <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2 line-clamp-2">
@@ -143,7 +143,7 @@ export default function PremiumRaffleCard({ raffle, index = 0 }: PremiumRaffleCa
 
             {/* Action Button */}
             <motion.button 
-              className="w-full bg-gradient-to-r from-blue-500 to-pink-500 hover:from-blue-600 hover:to-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden"
+              className="w-full bg-gradient-to-r from-blue-500 to-pink-500 hover:from-blue-600 hover:to-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden mt-auto"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >

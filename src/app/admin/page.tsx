@@ -185,7 +185,7 @@ export default function AdminDashboard() {
                 onClick={logout}
                 className="px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
               >
-                Log Ud
+                Log ud
               </button>
             </div>
           </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { mockRaffles } from '@/lib/mockData'
-import PremiumRaffleCard from '@/components/PremiumRaffleCard'
+import RaffleCarousel from '@/components/RaffleCarousel'
 import PremiumHeader from '@/components/PremiumHeader'
 import GradientMesh from '@/components/GradientMesh'
 import PremiumButton from '@/components/PremiumButton'
@@ -198,7 +198,7 @@ export default function Home() {
                 icon="🎯"
                 className="text-xl font-black px-10 py-5 shadow-2xl"
               >
-                Se Aktive Lodtrækninger
+                Se aktive lodtrækninger
               </PremiumButton>
             </Link>
             <Link href="/winners">
@@ -208,7 +208,7 @@ export default function Home() {
                 icon="🏆"
                 className="text-xl font-bold px-10 py-5 border-2 hover:shadow-xl"
               >
-                Se Vindere
+                Se vindere
               </PremiumButton>
             </Link>
           </motion.div>
@@ -289,36 +289,22 @@ export default function Home() {
               🔥 HOT
               <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-6">Trending Lodtrækninger</h2>
+            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-6">Trending lodtrækninger</h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-8">
               De mest populære konkurrencer lige nu - få dine billetter før de sælger ud!
             </p>
           </motion.div>
           
-          {/* Featured Raffle Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-            {featuredRaffles.slice(0,3).map((raffle, index) => (
-              <motion.div
-                key={raffle.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="relative"
-              >
-                {index === 0 && (
-                  <div className="absolute -top-4 -right-4 z-10">
-                    <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
-                      🔥 MEST POPULÆR
-                    </div>
-                  </div>
-                )}
-                <div className="transform hover:scale-105 transition-all duration-300">
-                  <PremiumRaffleCard raffle={raffle} index={index} />
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          {/* Featured Raffle Carousel */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="mb-12"
+          >
+            <RaffleCarousel raffles={featuredRaffles} />
+          </motion.div>
           
           {/* View All CTA */}
           <motion.div
@@ -335,7 +321,7 @@ export default function Home() {
                 icon="👀"
                 className="font-semibold"
               >
-                Se Alle Lodtrækninger
+                Se alle lodtrækninger
               </PremiumButton>
             </Link>
           </motion.div>
@@ -356,7 +342,7 @@ export default function Home() {
               🎆 NYT
               <span className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></span>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-6">DrawDash Rewards</h2>
+            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-6">DrawDash rewards</h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
               Optjen points ved hvert køb og indløs dem som rabat. Jo mere du spiller, jo flere fordele får du!
             </p>
@@ -402,7 +388,7 @@ export default function Home() {
                 shimmer
                 className="font-bold"
               >
-                Start Med At Optjene Points
+                Start med at optjene points
               </PremiumButton>
             </Link>
           </motion.div>
@@ -424,7 +410,7 @@ export default function Home() {
               🏆 SENESTE VINDERE
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-6">Nylige Vindere</h2>
+            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-6">Nylige vindere</h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
               Se hvem der har vundet de seneste præmier - måske er du den næste!
             </p>
@@ -481,7 +467,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-6">Sådan Fungerer Det</h2>
+            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-6">Sådan fungerer det</h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
               Deltag i lodtrækninger på 3 nemme steps - det er så enkelt!
             </p>
@@ -554,7 +540,7 @@ export default function Home() {
               ⏰ SIDSTE CHANCE
               <span className="w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-6">Slutter Snart!</h2>
+            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-6">Slutter snart!</h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
               Disse lodtrækninger slutter inden for de næste 24 timer - skyndt dig!
             </p>
@@ -602,7 +588,7 @@ export default function Home() {
                     icon="🚨"
                     className="font-bold w-full"
                   >
-                    Sikr Dine Billetter Nu!
+                    Sikr dine billetter nu!
                   </PremiumButton>
                 </Link>
               </div>
@@ -624,7 +610,7 @@ export default function Home() {
       <section className="py-20 bg-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-900 mb-6">Hvorfor Vælge DrawDash?</h2>
+            <h2 className="text-4xl font-bold text-slate-900 mb-6">Hvorfor vælge DrawDash?</h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
               Danmarks mest pålidelige platform for lodtrækninger og konkurrencer
             </p>
@@ -726,7 +712,7 @@ export default function Home() {
                   icon="🚀"
                   className="font-bold px-8"
                 >
-                  Tilmeld Dig
+                  Tilmeld dig
                 </PremiumButton>
               </div>
               

@@ -548,7 +548,7 @@ export default function ClientRafflePage() {
                   >
                     {isAuthenticated 
                       ? (raffle.isInstantWin ? 'Spil Nu' : 'Deltag i Lodtrækning')
-                      : 'Log Ind for at Deltage'
+                      : 'Log ind for at deltage'
                     }
                   </PremiumButton>
 
@@ -623,7 +623,7 @@ export default function ClientRafflePage() {
       <MobileFloatingButton
         label={isAuthenticated 
           ? (raffle.isInstantWin ? 'Spil Nu' : 'Deltag Nu')
-          : 'Log Ind'
+          : 'Log ind'
         }
         icon={isAuthenticated ? '🎯' : '👤'}
         onClick={handlePurchase}

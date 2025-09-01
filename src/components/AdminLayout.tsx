@@ -186,7 +186,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Log Ud
+                  Log ud
                 </motion.button>
               </div>
             </div>
