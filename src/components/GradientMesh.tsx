@@ -21,9 +21,9 @@ export default function GradientMesh({
   }, [])
 
   const variants = {
-    default: 'bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50',
-    premium: 'bg-gradient-to-br from-blue-50 via-pink-50/50 to-purple-50',
-    hero: 'bg-gradient-to-br from-slate-50 via-blue-50/70 to-indigo-100/80'
+    default: 'bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/50',
+    premium: 'bg-gradient-to-br from-emerald-50 via-teal-50/50 to-cyan-50',
+    hero: 'bg-gradient-to-br from-slate-50 via-emerald-50/70 to-teal-100/80'
   }
 
   const floatingElements = animated && isMounted ? Array.from({ length: 3 }) : []
@@ -37,9 +37,9 @@ export default function GradientMesh({
             <motion.div
               key={i}
               className={`absolute rounded-full opacity-20 ${
-                i === 0 ? 'bg-blue-400 w-96 h-96 -top-48 -right-48' :
-                i === 1 ? 'bg-pink-300 w-80 h-80 top-1/3 -left-40' :
-                'bg-indigo-300 w-64 h-64 bottom-0 right-1/4'
+                i === 0 ? 'bg-emerald-400 w-96 h-96 -top-48 -right-48' :
+                i === 1 ? 'bg-teal-300 w-80 h-80 top-1/3 -left-40' :
+                'bg-cyan-300 w-64 h-64 bottom-0 right-1/4'
               }`}
               animate={{
                 x: [0, 30, -20, 0],

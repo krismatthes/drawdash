@@ -33,7 +33,8 @@
       "Bash(pkill:*)",
       "Bash(mv:*)",
       "WebFetch(domain:goodlifeplus.co.uk)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(PORT=3002 npm run dev)"
     ],
     "defaultMode": "acceptEdits",
     "additionalDirectories": [

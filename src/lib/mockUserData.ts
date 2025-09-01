@@ -13,6 +13,15 @@ export interface UserEntry {
   prizeClaimed?: boolean
   pointsEarned?: number
   pointsUsed?: number
+  instantWinResult?: {
+    isWinner: boolean
+    prizeWon?: {
+      type: 'grand' | 'major' | 'minor'
+      value: number
+      name: string
+    }
+    timestamp: Date
+  }
 }
 
 export interface UserWinning {
@@ -52,7 +61,16 @@ export const mockUserEntries: UserEntry[] = [
     status: 'active',
     result: 'pending',
     pointsEarned: 20, // 15 kr * 1.3 (gold tier) + 5% amount bonus (100kr+)
-    pointsUsed: 0
+    pointsUsed: 0,
+    instantWinResult: {
+      isWinner: true,
+      prizeWon: {
+        type: 'minor',
+        value: 50,
+        name: '50 kr rabat'
+      },
+      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    }
   },
   {
     id: '2',

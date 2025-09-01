@@ -57,54 +57,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000))
     
-    // Mock authentication - in real app this would be API call
-    // Test bruger: admin@test.dk / admin123 (admin)
-    // Test bruger: test@test.dk / test123 (normal bruger)
-    if (email && password) {
-      let mockUser: User | null = null
-      
-      if (email === 'admin@test.dk' && password === 'admin123') {
-        mockUser = {
-          id: '1',
-          email: email,
-          firstName: 'Admin',
-          lastName: 'Bruger',
-          isAdmin: true,
-          points: 5000,
-          totalSpent: 12500,
-          loyaltyTier: 'diamond'
-        }
-      } else if (email === 'test@test.dk' && password === 'test123') {
-        mockUser = {
-          id: '2',
-          email: email,
-          firstName: 'Test',
-          lastName: 'Bruger',
-          isAdmin: false,
-          points: 800,
-          totalSpent: 2800,
-          loyaltyTier: 'gold'
-        }
-      } else if (email && password.length >= 3) {
-        // Allow any email/password combo for demo
-        mockUser = {
-          id: Date.now().toString(),
-          email: email,
-          firstName: email.split('@')[0],
-          lastName: 'Bruger',
-          isAdmin: email.includes('admin'),
-          points: 180,
-          totalSpent: 300,
-          loyaltyTier: 'bronze'
-        }
+    // Mock authentication for demo purposes
+    if (email === 'test@test.dk' && password === 'test123') {
+      const mockUser: User = {
+        id: 'user_1',
+        email: 'test@test.dk',
+        firstName: 'Test',
+        lastName: 'Bruger',
+        isAdmin: false,
+        loyaltyTier: 'gold',
+        points: 17500,
+        totalSpent: 12500
       }
-      
-      if (mockUser) {
-        setUser(mockUser)
-        localStorage.setItem('user', JSON.stringify(mockUser))
-        setIsLoading(false)
-        return { success: true }
+      setUser(mockUser)
+      localStorage.setItem('user', JSON.stringify(mockUser))
+      setIsLoading(false)
+      return { success: true }
+    }
+    
+    if (email === 'admin@test.dk' && password === 'admin123') {
+      const adminUser: User = {
+        id: 'admin_1',
+        email: 'admin@test.dk',
+        firstName: 'Admin',
+        lastName: 'User',
+        isAdmin: true,
+        loyaltyTier: 'diamond',
+        points: 5000,
+        totalSpent: 12500
       }
+      setUser(adminUser)
+      localStorage.setItem('user', JSON.stringify(adminUser))
+      setIsLoading(false)
+      return { success: true }
     }
     
     setIsLoading(false)
@@ -115,29 +100,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true)
     
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1500))
     
-    // Mock registration
-    if (userData.email && userData.password && userData.firstName && userData.lastName) {
-      const newUser: User = {
-        id: Date.now().toString(),
-        email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        isAdmin: false,
-        points: 0,
-        totalSpent: 0,
-        loyaltyTier: 'bronze'
-      }
-      
-      setUser(newUser)
-      localStorage.setItem('user', JSON.stringify(newUser))
+    // Mock registration for demo purposes
+    // Check if email already exists (mock check)
+    if (userData.email === 'test@test.dk' || userData.email === 'admin@test.dk') {
       setIsLoading(false)
-      return { success: true }
-    } else {
-      setIsLoading(false)
-      return { success: false, error: 'Alle felter skal udfyldes' }
+      return { success: false, error: 'Email allerede i brug' }
     }
+    
+    // Create new mock user
+    const newUser: User = {
+      id: `user_${Date.now()}`,
+      email: userData.email,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      isAdmin: false,
+      loyaltyTier: 'bronze',
+      points: 0,
+      totalSpent: 0
+    }
+    
+    setUser(newUser)
+    localStorage.setItem('user', JSON.stringify(newUser))
+    setIsLoading(false)
+    return { success: true }
   }
 
   const logout = () => {

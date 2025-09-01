@@ -32,10 +32,10 @@ export default function PremiumButton({
 }: PremiumButtonProps) {
   
   const variants = {
-    primary: 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg hover:shadow-xl',
-    premium: 'bg-gradient-to-r from-blue-500 to-pink-400 hover:from-blue-600 hover:to-pink-500 text-white shadow-xl hover:shadow-2xl',
+    primary: 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg hover:shadow-xl',
+    premium: 'bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-600 hover:to-teal-500 text-white shadow-xl hover:shadow-2xl',
     ghost: 'bg-white/10 hover:bg-white/20 text-slate-700 backdrop-blur-sm border border-white/20',
-    outline: 'bg-transparent hover:bg-slate-50 text-slate-700 border-2 border-slate-300 hover:border-blue-500'
+    outline: 'bg-transparent hover:bg-slate-50 text-slate-700 border-2 border-slate-300 hover:border-emerald-500'
   }
 
   const sizes = {
@@ -53,7 +53,7 @@ export default function PremiumButton({
         relative overflow-hidden font-semibold transition-all duration-300
         ${variants[variant]} ${sizes[size]} ${className}
         ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-        active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-blue-500/20
+        active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-emerald-500/20
       `}
       whileHover={isDisabled ? {} : { scale: 1.02 }}
       whileTap={isDisabled ? {} : { scale: 0.98 }}

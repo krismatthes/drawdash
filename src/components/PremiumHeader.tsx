@@ -43,8 +43,8 @@ export default function PremiumHeader() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-pink-500 rounded-xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity duration-300" />
-              <div className="relative bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-cyan-400 to-blue-500 rounded-xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity duration-300" />
+              <div className="relative bg-gradient-to-r from-emerald-500 via-teal-400 via-cyan-500 to-blue-500 bg-clip-text text-transparent">
                 <h1 className="text-xl sm:text-2xl font-black tracking-tight">DrawDash</h1>
               </div>
               <div className="absolute -top-1 -right-2 w-3 h-3 bg-gradient-to-r from-orange-400 to-red-500 rounded-full animate-pulse" />
@@ -59,7 +59,7 @@ export default function PremiumHeader() {
             ].map((item, index) => (
               <Link key={item.href} href={item.href}>
                 <motion.div
-                  className="relative px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-300 group hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50"
+                  className="relative px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-300 group hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   initial={{ opacity: 0, y: -10 }}
@@ -81,7 +81,7 @@ export default function PremiumHeader() {
                     </div>
                   )}
                   
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
                 </motion.div>
               </Link>
             ))}
@@ -112,7 +112,7 @@ export default function PremiumHeader() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
                       {user?.firstName?.[0]?.toUpperCase()}
                     </div>
                     <div className="text-left hidden sm:block">
@@ -154,7 +154,7 @@ export default function PremiumHeader() {
                               whileTap={{ scale: 0.98 }}
                               onClick={() => setIsUserMenuOpen(false)}
                             >
-                              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                              <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
                                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
@@ -201,7 +201,7 @@ export default function PremiumHeader() {
                 
                 <Link href="/register">
                   <motion.div 
-                    className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden"
+                    className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -260,7 +260,7 @@ export default function PremiumHeader() {
                   >
                     <Link 
                       href={item.href}
-                      className="flex items-center gap-3 px-4 py-3 text-slate-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 rounded-xl transition-all duration-200"
+                      className="flex items-center gap-3 px-4 py-3 text-slate-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 rounded-xl transition-all duration-200"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <span className="text-lg">{item.icon}</span>
@@ -273,7 +273,7 @@ export default function PremiumHeader() {
                   {isAuthenticated ? (
                     <div className="space-y-2">
                       <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-xl">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
+                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold">
                           {user?.firstName?.[0]?.toUpperCase()}
                         </div>
                         <div className="flex-1">
@@ -290,7 +290,7 @@ export default function PremiumHeader() {
                       </div>
                       
                       <Link href="/account" className="flex items-center gap-3 px-4 py-3 text-slate-700 hover:bg-slate-50 rounded-xl" onClick={() => setIsMenuOpen(false)}>
-                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                        <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
                           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                           </svg>
@@ -327,7 +327,7 @@ export default function PremiumHeader() {
                         <span>🔑</span>
                         <span>Log Ind</span>
                       </Link>
-                      <Link href="/register" className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-semibold">
+                      <Link href="/register" className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold">
                         <span>Tilmeld Dig</span>
                       </Link>
                     </div>

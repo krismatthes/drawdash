@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import PremiumHeader from '@/components/PremiumHeader'
 import CountdownTimer from '@/components/CountdownTimer'
-import PaymentForm from '@/components/PaymentForm'
+import DemoPaymentForm from '@/components/DemoPaymentForm'
 import GradientMesh from '@/components/GradientMesh'
 import ProductGallery from '@/components/ProductGallery'
 import ProgressRing from '@/components/ProgressRing'
@@ -16,12 +16,15 @@ import SmoothCounter from '@/components/SmoothCounter'
 import PremiumButton from '@/components/PremiumButton'
 import MobileFloatingButton from '@/components/MobileFloatingButton'
 import PointsCalculationDisplay from '@/components/PointsCalculationDisplay'
+import InstantWinReveal from '@/components/InstantWinReveal'
+import SuccessModal from '@/components/SuccessModal'
 import { mockRaffles } from '@/lib/mockData'
 import { Raffle } from '@/types/raffle'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LoyaltyCalculator } from '@/lib/loyalty'
 import { LOYALTY_TIERS } from '@/types/loyalty'
+import { InstantWinService, InstantWinResult } from '@/lib/instantWinService'
 
 export default function ClientRafflePage() {
   const params = useParams()
@@ -30,6 +33,10 @@ export default function ClientRafflePage() {
   const [ticketQuantity, setTicketQuantity] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
+  const [showInstantWin, setShowInstantWin] = useState(false)
+  const [instantWinResult, setInstantWinResult] = useState<InstantWinResult | null>(null)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [successModalData, setSuccessModalData] = useState({ title: '', message: '', type: 'success' as 'success' | 'info' | 'celebration' })
   const { isAuthenticated, user } = useAuth()
   const { t } = useLanguage()
 
@@ -52,8 +59,23 @@ export default function ClientRafflePage() {
   const handlePaymentSuccess = (pointsUsed?: number) => {
     setShowPayment(false)
     
-    // Show success message with link to account page
-    let message = `Du har succesfuldt deltaget i lodtrækningen med ${ticketQuantity} billet(ter)! `
+    // Check if this is an instant win raffle
+    if (raffle?.isInstantWin && user) {
+      // Generate instant win result
+      const entryId = `entry_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      const result = InstantWinService.generateInstantWinResult(
+        raffle.id,
+        user.id,
+        entryId
+      )
+      
+      setInstantWinResult(result)
+      setShowInstantWin(true)
+      return
+    }
+    
+    // Regular raffle success flow
+    let message = `Du har succesfuldt deltaget i lodtrækningen med ${ticketQuantity} billet(ter)!`
     
     if (pointsUsed && pointsUsed > 0) {
       message += `\n\nDu brugte ${pointsUsed.toLocaleString('da-DK')} DrawDash Rewards points på dette køb.`
@@ -65,13 +87,44 @@ export default function ClientRafflePage() {
     
     message += `\n\nHeld og lykke! Du kan se alle dine deltagelser på din konto side.`
     
-    if (confirm(message + '\n\nVil du gå til din konto side nu?')) {
-      router.push('/account?tab=active')
-    }
+    setSuccessModalData({
+      title: 'Deltagelse Bekræftet!',
+      message: message,
+      type: 'success'
+    })
+    setShowSuccessModal(true)
   }
 
   const handlePaymentCancel = () => {
     setShowPayment(false)
+  }
+
+  const handleInstantWinClose = () => {
+    setShowInstantWin(false)
+    
+    // Show appropriate message based on result
+    if (instantWinResult?.isWinner) {
+      const message = `Tillykke! Du vandt ${instantWinResult.prizeWon?.name} til en værdi af ${instantWinResult.prizeWon?.value.toLocaleString('da-DK')} kr!\n\nDin gevinst er automatisk tilføjet til din konto.`
+      
+      setSuccessModalData({
+        title: 'Stort Tillykke!',
+        message: message,
+        type: 'celebration'
+      })
+      setShowSuccessModal(true)
+    } else {
+      const message = `Du har succesfuldt deltaget i instant win spillet med ${ticketQuantity} billet(ter)!\n\nDesværre ingen gevinst denne gang, men bedre held næste gang!`
+      
+      setSuccessModalData({
+        title: 'Deltagelse Bekræftet!',
+        message: message,
+        type: 'info'
+      })
+      setShowSuccessModal(true)
+    }
+    
+    // Reset instant win state
+    setInstantWinResult(null)
   }
 
   if (!raffle) {
@@ -157,7 +210,7 @@ export default function ClientRafflePage() {
                   className="flex flex-wrap items-center gap-3 mb-4"
                 >
                   {raffle.isInstantWin && (
-                    <div className="bg-gradient-to-r from-blue-500 to-pink-500 text-white px-3 py-1.5 rounded-full text-sm font-bold">
+                    <div className="bg-gradient-to-r from-emerald-500 to-teal-400 text-white px-3 py-1.5 rounded-full text-sm font-bold">
                       ⚡ INSTANT WIN
                     </div>
                   )}
@@ -189,7 +242,7 @@ export default function ClientRafflePage() {
                     <div className="text-white/80 text-sm font-medium mb-1">
                       TOTAL VÆRDI
                     </div>
-                    <div className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-pink-300 to-purple-300">
+                    <div className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300">
                       {raffle.prize.value.toLocaleString('da-DK')} kr
                     </div>
                   </div>
@@ -485,30 +538,42 @@ export default function ClientRafflePage() {
                     </div>
                   )}
 
-                  {/* CTA Button */}
+                  {/* Primary CTA Button */}
                   <PremiumButton
                     variant={isAuthenticated ? 'premium' : 'primary'}
                     size="xl"
-                    icon={isAuthenticated ? '🎯' : '👤'}
-                    iconPosition="left"
                     onClick={handlePurchase}
                     shimmer={isAuthenticated}
                     className="w-full font-bold mb-4"
                   >
                     {isAuthenticated 
-                      ? (raffle.isInstantWin ? '⚡ Spil Nu' : 'Deltag i Lodtrækning')
+                      ? (raffle.isInstantWin ? 'Spil Nu' : 'Deltag i Lodtrækning')
                       : 'Log Ind for at Deltage'
                     }
                   </PremiumButton>
 
-                  {/* Alternative Entry Link */}
-                  <div className="text-center mb-4">
-                    <a 
-                      href="/free-entry" 
-                      className="text-sm text-slate-500 hover:text-slate-700 transition-colors underline"
+                  {/* Free Entry CTA - Equal Prominence */}
+                  <div className="mb-4">
+                    <PremiumButton
+                      variant="outline"
+                      size="xl"
+                      onClick={() => window.open('/free-entry', '_blank')}
+                      className="w-full font-bold border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50"
                     >
-                      ⓘ Alternative deltagelsesmuligheder
-                    </a>
+                      Deltag GRATIS med Postkort
+                    </PremiumButton>
+                  </div>
+
+                  {/* Equal chance notice */}
+                  <div className="text-center mb-4">
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                      <div className="text-sm font-semibold text-emerald-800 mb-1">
+                        Samme vindersandsynlighed
+                      </div>
+                      <div className="text-xs text-emerald-700">
+                        Gratis og betalte billetter har identisk chance for at vinde
+                      </div>
+                    </div>
                   </div>
 
                   <p className="text-xs text-slate-400 text-center">
@@ -521,11 +586,11 @@ export default function ClientRafflePage() {
                   <h3 className="text-lg font-semibold text-slate-900 mb-4">Sådan fungerer det</h3>
                   <div className="space-y-4">
                     {[
-                      { icon: '🎫', text: 'Vælg antal billetter' },
-                      { icon: '💳', text: 'Gennemfør sikker betaling' },
-                      { icon: '🎯', text: 'Optjen DrawDash Rewards points' },
+                      { icon: '🎫', text: 'Vælg antal billetter ELLER send gratis postkort' },
+                      { icon: '💳', text: 'Gennemfør sikker betaling eller gratis deltagelse' },
+                      { icon: '🎯', text: 'Optjen DrawDash Rewards points (kun betalte billetter)' },
                       { icon: '⏰', text: 'Vent på lodtrækning' },
-                      { icon: '🏆', text: 'Vinder annonceres live' }
+                      { icon: '🏆', text: 'Vinder annonceres live - alle deltagere har samme chance' }
                     ].map((step, index) => (
                       <div key={index} className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-sm">
@@ -566,12 +631,39 @@ export default function ClientRafflePage() {
       />
 
       {showPayment && (
-        <PaymentForm
+        <DemoPaymentForm
           amount={totalCost}
           onSuccess={handlePaymentSuccess}
           onCancel={handlePaymentCancel}
         />
       )}
+
+      {/* Instant Win Reveal Modal */}
+      <InstantWinReveal
+        isOpen={showInstantWin}
+        result={instantWinResult}
+        onClose={handleInstantWinClose}
+        raffleName={raffle.title}
+      />
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        onConfirm={() => {
+          setShowSuccessModal(false)
+          if (successModalData.type === 'celebration') {
+            router.push('/account?tab=winnings')
+          } else {
+            router.push('/account?tab=active')
+          }
+        }}
+        title={successModalData.title}
+        message={successModalData.message}
+        type={successModalData.type}
+        confirmText="Gå til Konto"
+        cancelText="Luk"
+      />
     </div>
   )
 }

@@ -1,5 +1,7 @@
 'use client'
 
+// SECURITY WARNING: This service uses localStorage for data persistence, which is insecure as users can manipulate data in the browser. For production, implement server-side storage and API endpoints with proper authentication.
+
 import { Raffle, RaffleEntry } from '@/types/raffle'
 import { mockRaffles } from './mockData'
 

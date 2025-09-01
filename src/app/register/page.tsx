@@ -28,6 +28,17 @@ export default function RegisterPage() {
     e.preventDefault()
     setError('')
     
+    // Password validation
+    if (formData.password.length < 8) {
+      setError('Adgangskoden skal være mindst 8 tegn!')
+      return
+    }
+    
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+      setError('Adgangskoden skal indeholde mindst ét lille bogstav, ét stort bogstav og ét tal!')
+      return
+    }
+    
     if (formData.password !== formData.confirmPassword) {
       setError('Adgangskoderne matcher ikke!')
       return
@@ -69,7 +80,7 @@ export default function RegisterPage() {
             </h2>
             <p className="mt-2 text-center text-sm text-slate-600">
               Har du allerede en konto?{' '}
-              <Link href="/login" className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-pink-500 hover:from-blue-600 hover:to-pink-600">
+              <Link href="/login" className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-600 hover:to-teal-500">
                 Log ind her
               </Link>
             </p>
@@ -156,7 +167,7 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                   className="w-full px-4 py-3 border border-slate-300 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
-                  placeholder="Min. 8 tegn"
+                  placeholder="Min. 8 tegn, store/små bogstaver + tal"
                 />
               </div>
 

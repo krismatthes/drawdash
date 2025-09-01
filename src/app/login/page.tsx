@@ -162,35 +162,6 @@ function LoginContent() {
           </motion.div>
         </div>
         
-        {/* Demo Login Info */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
-          className="max-w-2xl mx-auto px-4 pb-12"
-        >
-          <div className="card-premium p-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-4 text-center">🎯 Test Login Oplysninger</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
-                <div className="font-semibold text-blue-800 mb-2">👤 Normal Bruger</div>
-                <div className="text-blue-700">
-                  <div><strong>Email:</strong> test@test.dk</div>
-                  <div><strong>Password:</strong> test123</div>
-                  <div className="text-xs mt-1 opacity-75">Gold tier • 800 points</div>
-                </div>
-              </div>
-              <div className="bg-purple-50 p-4 rounded-xl border border-purple-200">
-                <div className="font-semibold text-purple-800 mb-2">👑 Admin Bruger</div>
-                <div className="text-purple-700">
-                  <div><strong>Email:</strong> admin@test.dk</div>
-                  <div><strong>Password:</strong> admin123</div>
-                  <div className="text-xs mt-1 opacity-75">Diamond tier • 5000 points</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
       </main>
     </div>
   )

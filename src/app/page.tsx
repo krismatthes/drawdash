@@ -167,7 +167,7 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-5xl sm:text-6xl md:text-8xl font-black text-slate-900 mb-8 leading-[0.9] tracking-tight"
           >
-            Vind <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Drømmepræmier</span>
+            Vind <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">Drømmepræmier</span>
             <br />
             <span className="text-4xl sm:text-5xl md:text-6xl font-black">med DrawDash</span>
           </motion.h1>
@@ -263,11 +263,11 @@ export default function Home() {
               <div className="text-sm text-slate-700 font-bold uppercase tracking-wide">Kroner Uddelt</div>
             </div>
             <div className="text-center bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30">
-              <div className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">10K+</div>
+              <div className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-3">10K+</div>
               <div className="text-sm text-slate-700 font-bold uppercase tracking-wide">Glade Vindere</div>
             </div>
             <div className="text-center bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/30">
-              <div className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">100%</div>
+              <div className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent mb-3">100%</div>
               <div className="text-sm text-slate-700 font-bold uppercase tracking-wide">Sikker Platform</div>
             </div>
           </motion.div>
@@ -285,7 +285,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full px-4 py-2 text-sm font-semibold text-slate-700 mb-6">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full px-4 py-2 text-sm font-semibold text-slate-700 mb-6">
               🔥 HOT
               <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
             </div>
@@ -343,7 +343,7 @@ export default function Home() {
       </section>
       
       {/* DrawDash Rewards Section */}
-      <section className="relative py-20 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50">
+      <section className="relative py-20 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -352,9 +352,9 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full px-4 py-2 text-sm font-semibold text-slate-700 mb-6">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-100 to-cyan-100 rounded-full px-4 py-2 text-sm font-semibold text-slate-700 mb-6">
               🎆 NYT
-              <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
+              <span className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></span>
             </div>
             <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-6">DrawDash Rewards</h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
@@ -367,7 +367,7 @@ export default function Home() {
               { tier: 'Bronze', color: 'from-amber-400 to-orange-500', icon: '🥉', points: '1x points', threshold: '0 kr' },
               { tier: 'Silver', color: 'from-gray-400 to-gray-500', icon: '🥈', points: '1.15x points', threshold: '500 kr' },
               { tier: 'Gold', color: 'from-yellow-400 to-yellow-500', icon: '🥇', points: '1.3x points', threshold: '2.000 kr' },
-              { tier: 'Diamond', color: 'from-blue-400 to-purple-500', icon: '💎', points: '1.5x points', threshold: '10.000 kr' },
+              { tier: 'Diamond', color: 'from-emerald-400 to-teal-500', icon: '💎', points: '1.5x points', threshold: '10.000 kr' },
             ].map((tier, index) => (
               <motion.div
                 key={tier.tier}
@@ -410,8 +410,8 @@ export default function Home() {
       </section>
 
       {/* Recent Winners Section */}
-      <section className="py-20 bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100 via-transparent to-purple-100 opacity-60"></div>
+      <section className="py-20 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-100 via-transparent to-teal-100 opacity-60"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -494,14 +494,14 @@ export default function Home() {
                 title: 'Vælg Lodtrækning',
                 description: 'Browse gennem vores aktive lodtrækninger og find den præmie, du ønsker at vinde.',
                 icon: '🎯',
-                color: 'from-blue-500 to-purple-500'
+                color: 'from-emerald-500 to-teal-500'
               },
               {
                 step: '2', 
                 title: 'Køb Billetter',
                 description: 'Køb dine billetter sikkert med kort eller MobilePay. Optjen points ved hvert køb.',
                 icon: '🎫',
-                color: 'from-purple-500 to-pink-500'
+                color: 'from-teal-500 to-cyan-500'
               },
               {
                 step: '3',
@@ -638,7 +638,7 @@ export default function Home() {
               viewport={{ once: true }}
               className="text-center group"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+              <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
                 <span className="text-3xl">🎯</span>
               </div>
               <h3 className="text-xl font-semibold text-slate-900 mb-4">Fair & Transparent</h3>
@@ -670,7 +670,7 @@ export default function Home() {
               viewport={{ once: true }}
               className="text-center group"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+              <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
                 <span className="text-3xl">⚡</span>
               </div>
               <h3 className="text-xl font-semibold text-slate-900 mb-4">Hurtig Udbetaling</h3>
@@ -684,7 +684,7 @@ export default function Home() {
 
       {/* Newsletter Section */}
       <section className="py-20 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-purple-900/20"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-900/20 via-transparent to-teal-900/20"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -693,12 +693,12 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full px-4 py-2 text-sm font-semibold mb-6 border border-blue-500/20">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-full px-4 py-2 text-sm font-semibold mb-6 border border-emerald-500/20">
               📧 NYHEDSBREV
               <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
             </div>
             <h2 className="text-4xl sm:text-5xl font-black mb-6">
-              Bliv Informeret Om Nye <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Lodtrækninger</span>
+              Bliv Informeret Om Nye <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Lodtrækninger</span>
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-8">
               Få besked først når vi lancerer spændende nye konkurrencer og eksklusiv adgang til særlige tilbud!
@@ -740,7 +740,7 @@ export default function Home() {
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8 text-center">
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mb-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mb-3">
                   <span className="text-xl">🎯</span>
                 </div>
                 <div className="text-sm font-semibold mb-1">Nye Lodtrækninger</div>
@@ -756,7 +756,7 @@ export default function Home() {
               </div>
               
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center mb-3">
                   <span className="text-xl">🏆</span>
                 </div>
                 <div className="text-sm font-semibold mb-1">Vinder Updates</div>
@@ -773,7 +773,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center mb-6">
-                <div className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <div className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
                   <h1 className="text-3xl font-black tracking-tight">DrawDash</h1>
                 </div>
               </div>

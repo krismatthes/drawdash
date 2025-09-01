@@ -243,9 +243,9 @@ function AccountContent() {
                 </div>
                 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-blue-200/50">
-                    <div className="text-lg sm:text-2xl font-bold text-blue-600 mb-1">{userStats.totalSpent.toLocaleString()} kr</div>
-                    <div className="text-blue-700 text-xs sm:text-sm font-semibold">{t('totalSpent')}</div>
+                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-emerald-200/50">
+                    <div className="text-lg sm:text-2xl font-bold text-emerald-600 mb-1">{userStats.totalSpent.toLocaleString()} kr</div>
+                    <div className="text-emerald-700 text-xs sm:text-sm font-semibold">{t('totalSpent')}</div>
                   </div>
                   
                   <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-green-200/50">
@@ -253,15 +253,46 @@ function AccountContent() {
                     <div className="text-green-700 text-xs sm:text-sm font-semibold">{t('totalWon')}</div>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-purple-200/50">
-                    <div className="text-lg sm:text-2xl font-bold text-purple-600 mb-1">{userStats.totalEntries}</div>
-                    <div className="text-purple-700 text-xs sm:text-sm font-semibold">{t('entriesCount')}</div>
+                  <div className="bg-gradient-to-br from-teal-50 to-cyan-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-teal-200/50">
+                    <div className="text-lg sm:text-2xl font-bold text-teal-600 mb-1">{userStats.totalEntries}</div>
+                    <div className="text-teal-700 text-xs sm:text-sm font-semibold">{t('entriesCount')}</div>
                   </div>
                   
                   <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-orange-200/50">
                     <div className="text-lg sm:text-2xl font-bold text-orange-600 mb-1">{userStats.winRate.toFixed(1)}%</div>
                     <div className="text-orange-700 text-xs sm:text-sm font-semibold">{t('winRate')}</div>
                   </div>
+                </div>
+
+                {/* Instant Win Statistics */}
+                <div className="card-premium p-6">
+                  <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    ⚡ Instant Win Statistik
+                  </h3>
+                  {(() => {
+                    const instantWinEntries = userEntries.filter(entry => entry.instantWinResult)
+                    const instantWinWins = instantWinEntries.filter(entry => entry.instantWinResult?.isWinner)
+                    const totalInstantWinValue = instantWinWins.reduce((sum, entry) => 
+                      sum + (entry.instantWinResult?.prizeWon?.value || 0), 0
+                    )
+                    
+                    return (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-blue-600 mb-1">{instantWinEntries.length}</div>
+                          <div className="text-xs text-blue-700 font-semibold">Instant Win spil</div>
+                        </div>
+                        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-emerald-600 mb-1">{instantWinWins.length}</div>
+                          <div className="text-xs text-emerald-700 font-semibold">Instant vundne</div>
+                        </div>
+                        <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-teal-600 mb-1">{totalInstantWinValue.toLocaleString('da-DK')} kr</div>
+                          <div className="text-xs text-teal-700 font-semibold">Instant gevinst værdi</div>
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
@@ -287,7 +318,20 @@ function AccountContent() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-slate-500 text-sm">{t('noActiveEntries')}</p>
+                      <div className="text-center py-6">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full flex items-center justify-center">
+                          <svg className="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                        </div>
+                        <p className="text-slate-500 text-sm font-medium mb-2">Ingen aktive billetter</p>
+                        <button 
+                          onClick={() => setActiveTab('active')}
+                          className="text-emerald-600 text-xs hover:underline"
+                        >
+                          Se alle →
+                        </button>
+                      </div>
                     )}
                   </div>
 
@@ -313,7 +357,20 @@ function AccountContent() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-slate-500 text-sm">{t('noWinnings')}</p>
+                      <div className="text-center py-6">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-amber-100 to-yellow-100 rounded-full flex items-center justify-center">
+                          <svg className="w-8 h-8 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                          </svg>
+                        </div>
+                        <p className="text-slate-500 text-sm font-medium mb-2">Ingen gevinster endnu</p>
+                        <button 
+                          onClick={() => setActiveTab('winnings')}
+                          className="text-amber-600 text-xs hover:underline"
+                        >
+                          Se alle →
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -347,7 +404,43 @@ function AccountContent() {
                           </div>
                           
                           <div className="flex-1">
-                            <h3 className="font-semibold text-lg">{entry.raffleTitle}</h3>
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-semibold text-lg">{entry.raffleTitle}</h3>
+                              {entry.instantWinResult && (
+                                <span className="bg-gradient-to-r from-emerald-500 to-teal-400 text-white px-2 py-1 rounded-full text-xs font-bold">
+                                  ⚡ INSTANT WIN
+                                </span>
+                              )}
+                            </div>
+                            
+                            {/* Instant Win Result Display */}
+                            {entry.instantWinResult && (
+                              <div className={`mb-3 p-3 rounded-lg ${
+                                entry.instantWinResult.isWinner 
+                                  ? 'bg-emerald-50 border border-emerald-200' 
+                                  : 'bg-slate-50 border border-slate-200'
+                              }`}>
+                                {entry.instantWinResult.isWinner ? (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-emerald-600 text-sm">🎉</span>
+                                    <div>
+                                      <div className="text-sm font-bold text-emerald-700">
+                                        Vandt: {entry.instantWinResult.prizeWon?.name}
+                                      </div>
+                                      <div className="text-xs text-emerald-600">
+                                        Værdi: {entry.instantWinResult.prizeWon?.value.toLocaleString('da-DK')} kr
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-slate-500 text-sm">💭</span>
+                                    <span className="text-sm text-slate-600">Ingen instant win gevinst</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3 text-sm">
                               <div>
                                 <span className="text-gray-500">{t('ticketsOwned')}:</span>
@@ -382,12 +475,58 @@ function AccountContent() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 sm:py-12">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500/10 to-pink-500/10 rounded-full flex items-center justify-center">
-                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-pink-500 rounded-full opacity-20"></div>
-                    </div>
-                    <p className="text-slate-500 text-base sm:text-lg font-medium">{t('noActiveEntries')}</p>
-                    <p className="text-slate-400 text-sm mt-2">Deltag i en lodtrækning for at se den her</p>
+                  <div className="text-center py-12 sm:py-16">
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5 }}
+                      className="mb-8"
+                    >
+                      <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full flex items-center justify-center relative overflow-hidden">
+                        <motion.div 
+                          className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-center"
+                          animate={{ 
+                            scale: [1, 1.1, 1],
+                            rotate: [0, 5, -5, 0]
+                          }}
+                          transition={{ 
+                            duration: 3, 
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        >
+                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                        </motion.div>
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-teal-400/20"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                        />
+                      </div>
+                    </motion.div>
+                    
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">Ingen aktive lodtrækninger endnu</h3>
+                    <p className="text-slate-600 mb-6 max-w-md mx-auto">
+                      Deltag i spændende lodtrækninger og få chancen for at vinde fantastiske præmier! 
+                      Dine aktive billetter vises her.
+                    </p>
+                    
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <button 
+                        onClick={() => router.push('/raffles')}
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Udforsk lodtrækninger
+                      </button>
+                    </motion.div>
                   </div>
                 )}
               </motion.div>
@@ -464,12 +603,82 @@ function AccountContent() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 sm:py-12">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-slate-500/10 to-slate-600/10 rounded-full flex items-center justify-center">
-                      <div className="w-8 h-1 bg-gradient-to-r from-slate-400 to-slate-500 rounded-full opacity-40"></div>
+                  <div className="text-center py-12 sm:py-16">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6 }}
+                      className="mb-8"
+                    >
+                      <div className="w-28 h-28 mx-auto mb-6 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center relative">
+                        <motion.div
+                          className="w-16 h-16 bg-gradient-to-br from-slate-400 to-slate-500 rounded-full flex items-center justify-center"
+                          animate={{ 
+                            y: [0, -3, 0],
+                            opacity: [0.6, 0.8, 0.6]
+                          }}
+                          transition={{ 
+                            duration: 2.5, 
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        >
+                          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </motion.div>
+                        
+                        {/* Floating dots animation */}
+                        {[...Array(3)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            className="absolute w-2 h-2 bg-slate-300 rounded-full"
+                            style={{
+                              top: '20%',
+                              left: `${30 + i * 20}%`
+                            }}
+                            animate={{
+                              y: [0, -8, 0],
+                              opacity: [0.3, 0.7, 0.3]
+                            }}
+                            transition={{
+                              duration: 1.5,
+                              repeat: Infinity,
+                              delay: i * 0.2,
+                              ease: "easeInOut"
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </motion.div>
+                    
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">Ingen historik endnu</h3>
+                    <p className="text-slate-600 mb-6 max-w-md mx-auto">
+                      Din komplette deltagelseshistorik vil blive vist her. Start med at deltage i din første lodtrækning!
+                    </p>
+                    
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <motion.button 
+                        onClick={() => router.push('/raffles')}
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Se aktuelle lodtrækninger
+                      </motion.button>
+                      
+                      <motion.button 
+                        onClick={() => setActiveTab('rewards')}
+                        className="inline-flex items-center gap-2 bg-white border border-slate-300 text-slate-700 px-6 py-3 rounded-xl font-semibold hover:bg-slate-50 transition-all duration-300"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        🎆 Se Rewards Program
+                      </motion.button>
                     </div>
-                    <p className="text-slate-500 text-base sm:text-lg font-medium">{t('noEntryHistory')}</p>
-                    <p className="text-slate-400 text-sm mt-2">Din historik vises her når du har deltaget</p>
                   </div>
                 )}
               </motion.div>
@@ -539,12 +748,82 @@ function AccountContent() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 sm:py-12">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 rounded-full flex items-center justify-center">
-                      <div className="w-6 h-6 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full opacity-30"></div>
+                  <div className="text-center py-12 sm:py-16">
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.7 }}
+                      className="mb-8"
+                    >
+                      <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-full flex items-center justify-center relative overflow-hidden">
+                        <motion.div
+                          className="w-20 h-20 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center relative"
+                          animate={{ 
+                            rotate: [0, 10, -10, 0],
+                            scale: [1, 1.05, 1]
+                          }}
+                          transition={{ 
+                            duration: 4, 
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        >
+                          <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                          </svg>
+                          
+                          {/* Sparkle effects */}
+                          {[...Array(4)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              className="absolute w-1 h-1 bg-white rounded-full"
+                              style={{
+                                top: `${20 + i * 15}%`,
+                                right: `${10 + i * 10}%`
+                              }}
+                              animate={{
+                                opacity: [0, 1, 0],
+                                scale: [0, 1, 0]
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                delay: i * 0.5,
+                                ease: "easeInOut"
+                              }}
+                            />
+                          ))}
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                    
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">Ingen gevinster endnu</h3>
+                    <p className="text-slate-600 mb-6 max-w-md mx-auto">
+                      Held og lykke med dine fremtidige deltagelser! Dine gevinster vil blive vist her når du vinder.
+                    </p>
+                    
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <motion.button 
+                        onClick={() => router.push('/raffles')}
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                        Prøv lykken nu
+                      </motion.button>
+                      
+                      <motion.button 
+                        onClick={() => setActiveTab('active')}
+                        className="inline-flex items-center gap-2 bg-white border border-slate-300 text-slate-700 px-6 py-3 rounded-xl font-semibold hover:bg-slate-50 transition-all duration-300"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        📋 Se aktive deltagelser
+                      </motion.button>
                     </div>
-                    <p className="text-slate-500 text-base sm:text-lg font-medium">{t('noWinnings')}</p>
-                    <p className="text-slate-400 text-sm mt-2">Held og lykke med dine fremtidige deltagelser!</p>
                   </div>
                 )}
               </motion.div>
