@@ -78,7 +78,7 @@ class BalanceService {
           balanceType: 'cash',
           amount: 50000,
           description: 'Demo indskud til test bruger',
-          metadata: { source: 'demo_init' }
+          metadata: { bonusId: 'demo_init' }
         }),
         this.createTransaction({
           userId: 'user_1',
@@ -94,7 +94,7 @@ class BalanceService {
           balanceType: 'free_tickets',
           amount: 5,
           description: 'Gratis billetter - demo',
-          metadata: { source: 'welcome_bonus' }
+          metadata: { bonusId: 'welcome_bonus' }
         })
       )
       
