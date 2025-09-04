@@ -306,7 +306,7 @@ export default function CampaignManagement() {
                   <div className="flex-1">
                     <p className={`text-sm font-medium ${adminTheme.colors.text.secondary}`}>Conversion Revenue</p>
                     <p className={`text-2xl font-bold ${adminTheme.colors.text.primary}`}>
-                      {getNumberDisplay(campaigns.reduce((sum, c) => sum + (c.metrics?.revenue || 0), 0), 'currency')}
+                      {getNumberDisplay(campaigns.filter(c => 'templateId' in c).reduce((sum, c: any) => sum + (c.metrics?.revenue || 0), 0), 'currency')}
                     </p>
                   </div>
                   <div className="w-10 h-10 bg-slate-100 rounded-md flex items-center justify-center">
