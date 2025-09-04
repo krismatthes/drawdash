@@ -116,6 +116,11 @@ class CRMService {
     }
   }
 
+  // Public readiness indicator (avoids exposing private fields)
+  public isProductionReady(): boolean {
+    return !this.mockMode
+  }
+
   // Initialize Customer.io tracking (mock version)
   async initialize(siteId?: string, apiKey?: string): Promise<boolean> {
     if (this.mockMode) {
@@ -520,6 +525,6 @@ export const CRM = {
   getAllSegments: () => crmService.getAllSegments(),
   
   // Ready for production
-  isProductionReady: () => !crmService.mockMode,
+  isProductionReady: () => crmService.isProductionReady(),
   enableProduction: (siteId: string, apiKey: string) => crmService.initialize(siteId, apiKey)
 }
