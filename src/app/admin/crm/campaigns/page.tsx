@@ -356,7 +356,7 @@ export default function CampaignManagement() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-slate-100 rounded-md flex items-center justify-center">
-                              {getTypeIcon(campaign.type)}
+                              {getTypeIcon('templateId' in campaign ? 'email' : 'sms')}
                             </div>
                             <div>
                               <div className="text-sm font-medium text-slate-900">{campaign.name}</div>
