@@ -259,20 +259,47 @@ export async function POST(request: NextRequest) {
 
     // Process balance usage if any balance was used
     if (userId && balanceUsed > 0) {
-      // Deduct used balance from user account
-      const balanceDeduction = Balance.deductForPurchase(
-        userId, 
-        balanceBreakdown.bonusUsed, 
-        balanceBreakdown.cashUsed, 
-        Math.floor(balanceBreakdown.freeTicketsUsed), 
-        `Purchase for ${raffleId || 'raffle'}: ${ticketQuantity} tickets`
-      )
-      
-      if (!balanceDeduction.success) {
-        return NextResponse.json(
-          { error: `Balance fejl: ${balanceDeduction.error}` },
-          { status: 400 }
+      const description = `Purchase for ${raffleId || 'raffle'}: ${ticketQuantity} tickets`
+
+      // First: deduct free tickets, if any
+      if (balanceBreakdown.freeTicketsUsed > 0) {
+        const ticketsToUse = Math.floor(balanceBreakdown.freeTicketsUsed)
+        const ticketsResult = Balance.useTickets(userId, ticketsToUse, description, {
+          raffleId,
+          ticketQuantity,
+        })
+        if (!ticketsResult.success) {
+          return NextResponse.json(
+            { error: `Balance fejl (tickets): ${ticketsResult.error}` },
+            { status: 400 }
+          )
+        }
+      }
+
+      // Then: deduct combined monetary amount (bonus + cash) in DKK
+      const totalBalanceAmountDKK = (balanceBreakdown.bonusUsed + balanceBreakdown.cashUsed) / 100
+      if (totalBalanceAmountDKK > 0) {
+        const balanceDeduction = Balance.deductForPurchase(
+          userId,
+          totalBalanceAmountDKK,
+          description,
+          {
+            raffleId,
+            ticketQuantity,
+            breakdown: {
+              bonusUsedMinor: balanceBreakdown.bonusUsed,
+              cashUsedMinor: balanceBreakdown.cashUsed,
+            },
+            units: 'minor'
+          }
         )
+
+        if (!balanceDeduction.success) {
+          return NextResponse.json(
+            { error: `Balance fejl: ${balanceDeduction.error}` },
+            { status: 400 }
+          )
+        }
       }
     }
 
