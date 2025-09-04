@@ -279,7 +279,7 @@ export default function GDPRCompliance() {
                               <div className="w-24 bg-slate-200 rounded-full h-2">
                                 <div 
                                   className="bg-blue-500 h-2 rounded-full"
-                                  style={{ width: `${(count / analytics.totalConsents) * 100}%` }}
+                                  style={{ width: `${(Number(count) / analytics.totalConsents) * 100}%` }}
                                 ></div>
                               </div>
                               <span className="text-sm font-medium text-slate-900 w-8">{count}</span>
