@@ -132,7 +132,7 @@ export const mockUserEntries: UserEntry[] = [
   {
     id: '6',
     raffleId: 'old3',
-    raffleTitle: '£100 Amazon Gavekort',
+    raffleTitle: '1.300 kr Amazon gavekort',
     raffleImage: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=300&fit=crop',
     ticketNumbers: [777, 778],
     ticketCount: 2,

@@ -4,6 +4,7 @@ import './globals.css'
 import { LanguageProvider } from '@/contexts/LanguageContext'
 import { AuthProvider } from '@/contexts/AuthContext'
 import CookieConsent from '@/components/CookieConsent'
+import { BonusNotificationManager } from '@/components/BonusNotification'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -25,6 +26,7 @@ export default function RootLayout({
           <AuthProvider>
             {children}
             <CookieConsent />
+            <BonusNotificationManager />
           </AuthProvider>
         </LanguageProvider>
       </body>

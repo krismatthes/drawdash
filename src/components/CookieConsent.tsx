@@ -3,6 +3,88 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+// GDPR Compliance Manager
+class GDPRConsentManager {
+  private static instance: GDPRConsentManager
+  private consentCallbacks: { [key: string]: (granted: boolean) => void } = {}
+
+  static getInstance(): GDPRConsentManager {
+    if (!GDPRConsentManager.instance) {
+      GDPRConsentManager.instance = new GDPRConsentManager()
+    }
+    return GDPRConsentManager.instance
+  }
+
+  // Register callback for when consent changes
+  onConsentChange(type: 'analytics' | 'marketing', callback: (granted: boolean) => void) {
+    this.consentCallbacks[type] = callback
+  }
+
+  // Check if user has consented to specific tracking
+  hasConsent(type: 'analytics' | 'marketing'): boolean {
+    const consent = localStorage.getItem('cookie-consent')
+    if (!consent) return false
+    
+    const parsed = JSON.parse(consent)
+    return parsed[type] === true
+  }
+
+  // Trigger consent callbacks
+  updateConsent(preferences: any) {
+    Object.keys(this.consentCallbacks).forEach(type => {
+      this.consentCallbacks[type](preferences[type])
+    })
+  }
+
+  // Block tracking pixels until consent
+  blockTrackingPixels() {
+    // Block Google Analytics
+    if (typeof window !== 'undefined') {
+      (window as any).gtag = (...args: any[]) => {
+        if (this.hasConsent('analytics')) {
+          // Only execute if consent given
+          return (window as any)._gtag?.apply(window, args)
+        }
+      }
+
+      // Block Facebook Pixel
+      ;(window as any).fbq = (...args: any[]) => {
+        if (this.hasConsent('marketing')) {
+          return (window as any)._fbq?.apply(window, args)
+        }
+      }
+
+      // Block other tracking scripts
+      this.interceptScriptLoading()
+    }
+  }
+
+  private interceptScriptLoading() {
+    const originalAppendChild = document.head.appendChild
+    document.head.appendChild = function(node: any) {
+      if (node.tagName === 'SCRIPT' && node.src) {
+        const src = node.src.toLowerCase()
+        
+        // Block analytics scripts without consent
+        if ((src.includes('google-analytics') || src.includes('googletagmanager')) && 
+            !GDPRConsentManager.getInstance().hasConsent('analytics')) {
+          console.log('Blocked analytics script:', src)
+          return node
+        }
+        
+        // Block marketing scripts without consent
+        if ((src.includes('facebook') || src.includes('fbpx') || src.includes('doubleclick')) && 
+            !GDPRConsentManager.getInstance().hasConsent('marketing')) {
+          console.log('Blocked marketing script:', src)
+          return node
+        }
+      }
+      
+      return originalAppendChild.call(this, node)
+    }
+  }
+}
+
 export default function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
@@ -12,13 +94,20 @@ export default function CookieConsent() {
     marketing: false
   })
 
+  const consentManager = GDPRConsentManager.getInstance()
+
   useEffect(() => {
+    // Block all tracking by default
+    consentManager.blockTrackingPixels()
+    
     const consent = localStorage.getItem('cookie-consent')
     if (!consent) {
       setShowBanner(true)
     } else {
       const saved = JSON.parse(consent)
       setPreferences(saved)
+      // Apply saved consent preferences
+      consentManager.updateConsent(saved)
     }
   }, [])
 
@@ -30,6 +119,8 @@ export default function CookieConsent() {
       timestamp: Date.now()
     }
     localStorage.setItem('cookie-consent', JSON.stringify(consent))
+    setPreferences(consent)
+    consentManager.updateConsent(consent)
     setShowBanner(false)
   }
 
@@ -41,6 +132,8 @@ export default function CookieConsent() {
       timestamp: Date.now()
     }
     localStorage.setItem('cookie-consent', JSON.stringify(consent))
+    setPreferences(consent)
+    consentManager.updateConsent(consent)
     setShowBanner(false)
   }
 
@@ -50,6 +143,8 @@ export default function CookieConsent() {
       timestamp: Date.now()
     }
     localStorage.setItem('cookie-consent', JSON.stringify(consent))
+    setPreferences(consent)
+    consentManager.updateConsent(consent)
     setShowBanner(false)
     setShowSettings(false)
   }

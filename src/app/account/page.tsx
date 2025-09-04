@@ -14,6 +14,7 @@ import TierBadge from '@/components/TierBadge'
 import TierProgress from '@/components/TierProgress'
 import { LoyaltyCalculator } from '@/lib/loyalty'
 import { LOYALTY_TIERS } from '@/types/loyalty'
+import BalanceDashboard from '@/components/BalanceDashboard'
 
 function AccountContent() {
   const { user, isAuthenticated, isLoading } = useAuth()
@@ -21,7 +22,7 @@ function AccountContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'active' | 'history' | 'winnings' | 'rewards' | 'settings'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'active' | 'history' | 'winnings' | 'rewards' | 'balance' | 'settings'>('overview')
   const [userEntries, setUserEntries] = useState<UserEntry[]>([])
   const [userWinnings, setUserWinnings] = useState<UserWinning[]>([])
   const [userStats, setUserStats] = useState<UserStats | null>(null)
@@ -80,7 +81,7 @@ function AccountContent() {
 
   useEffect(() => {
     const tab = searchParams.get('tab')
-    if (tab && ['overview', 'active', 'history', 'winnings', 'rewards', 'settings'].includes(tab)) {
+    if (tab && ['overview', 'active', 'history', 'winnings', 'rewards', 'balance', 'settings'].includes(tab)) {
       setActiveTab(tab as any)
     }
   }, [searchParams])
@@ -196,6 +197,7 @@ function AccountContent() {
                 { key: 'history', label: t('entryHistory') },
                 { key: 'winnings', label: t('myWinnings') },
                 { key: 'rewards', label: 'DrawDash Rewards' },
+                { key: 'balance', label: 'Balance & Udbetalinger' },
                 { key: 'settings', label: t('accountSettings') }
               ].map((tab) => (
                 <motion.button
@@ -1014,6 +1016,22 @@ function AccountContent() {
                     ))}
                   </div>
                 </div>
+              </motion.div>
+            )}
+
+            {/* Balance Tab */}
+            {activeTab === 'balance' && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-8"
+              >
+                <div className="text-center">
+                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">Balance & Udbetalinger</h2>
+                  <p className="text-sm sm:text-base text-slate-600">Administrer din balance og anmod om udbetalinger</p>
+                </div>
+                
+                <BalanceDashboard userId={user.id} />
               </motion.div>
             )}
 

@@ -35,7 +35,10 @@
       "WebFetch(domain:goodlifeplus.co.uk)",
       "Bash(npx tsc:*)",
       "Bash(PORT=3002 npm run dev)",
-      "Bash(xxd:*)"
+      "Bash(xxd:*)",
+      "Bash(open http://localhost:3002)",
+      "Bash(PORT=3001 npm run dev)",
+      "Bash(open http://localhost:3001)"
     ],
     "defaultMode": "acceptEdits",
     "additionalDirectories": [

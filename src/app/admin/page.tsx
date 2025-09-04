@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { mockRaffles } from '@/lib/mockData'
+import { adminTheme, getNumberDisplay } from '@/lib/admin-theme'
 
 export default function AdminDashboard() {
   const { user, isAuthenticated, isLoading, logout } = useAuth()
@@ -98,7 +98,7 @@ export default function AdminDashboard() {
           {/* Logo */}
           <div className="flex h-16 items-center border-b border-slate-200 px-4">
             <Link href="/admin" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-slate-900 rounded-md flex items-center justify-center">
                 <span className="text-white font-bold text-sm">DD</span>
               </div>
               <div>
@@ -112,18 +112,17 @@ export default function AdminDashboard() {
           <nav className="flex-1 px-4 py-4">
             <div className="space-y-1">
               <Link href="/admin">
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 border border-blue-200 px-3 py-2.5 text-sm font-medium rounded-xl flex items-center gap-3">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className={adminTheme.nav.active}>
+                  <svg className={adminTheme.icon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                   </svg>
                   Dashboard
-                  <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full" />
                 </div>
               </Link>
               
               <Link href="/admin/raffles">
-                <div className="text-slate-600 hover:bg-slate-50 hover:text-slate-900 px-3 py-2.5 text-sm font-medium rounded-xl flex items-center gap-3 transition-colors">
-                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className={adminTheme.nav.item}>
+                  <svg className={adminTheme.icon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 0v1m-2 0V6a2 2 0 00-2 0v1m2 0V9.5m0 0v3m0-3h3m-3 0h-3m-2-5a9 9 0 1118 0 9 9 0 01-18 0z" />
                   </svg>
                   Lodtrækninger
@@ -131,8 +130,8 @@ export default function AdminDashboard() {
               </Link>
               
               <Link href="/admin/users">
-                <div className="text-slate-600 hover:bg-slate-50 hover:text-slate-900 px-3 py-2.5 text-sm font-medium rounded-xl flex items-center gap-3 transition-colors">
-                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className={adminTheme.nav.item}>
+                  <svg className={adminTheme.icon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m3 5.197H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Brugere
@@ -140,17 +139,53 @@ export default function AdminDashboard() {
               </Link>
               
               <Link href="/admin/finance">
-                <div className="text-slate-600 hover:bg-slate-50 hover:text-slate-900 px-3 py-2.5 text-sm font-medium rounded-xl flex items-center gap-3 transition-colors">
-                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className={adminTheme.nav.item}>
+                  <svg className={adminTheme.icon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Finans
                 </div>
               </Link>
               
+              <Link href="/admin/bonuses">
+                <div className={adminTheme.nav.item}>
+                  <svg className={adminTheme.icon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 0v1m-2 0V6a2 2 0 00-2 0v1m2 0V9.5m0 0v3m0-3h3m-3 0h-3m-2-5a9 9 0 1118 0 9 9 0 01-18 0z" />
+                  </svg>
+                  Bonus Rewards
+                </div>
+              </Link>
+              
+              <Link href="/admin/crm">
+                <div className={adminTheme.nav.item}>
+                  <svg className={adminTheme.icon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  CRM & Kommunikation
+                </div>
+              </Link>
+              
+              <Link href="/admin/balance">
+                <div className={adminTheme.nav.item}>
+                  <svg className={adminTheme.icon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Balance & Udbetalinger
+                </div>
+              </Link>
+              
+              <Link href="/admin/compliance">
+                <div className={adminTheme.nav.item}>
+                  <svg className={adminTheme.icon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  Compliance & AML
+                </div>
+              </Link>
+              
               <Link href="/admin/faq">
-                <div className="text-slate-600 hover:bg-slate-50 hover:text-slate-900 px-3 py-2.5 text-sm font-medium rounded-xl flex items-center gap-3 transition-colors">
-                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className={adminTheme.nav.item}>
+                  <svg className={adminTheme.icon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   FAQ
@@ -162,7 +197,7 @@ export default function AdminDashboard() {
           {/* User Info */}
           <div className="border-t border-slate-200 p-4">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-slate-600 rounded-md flex items-center justify-center">
                 <span className="text-white text-xs font-bold">
                   {user?.firstName?.[0]?.toUpperCase()}
                 </span>
@@ -177,13 +212,13 @@ export default function AdminDashboard() {
             
             <div className="flex gap-2">
               <Link href="/" className="flex-1">
-                <button className="w-full px-3 py-2 text-xs font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
+                <button className={`w-full text-xs ${adminTheme.buttons.secondary}`}>
                   Til Forside
                 </button>
               </Link>
               <button
                 onClick={logout}
-                className="px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                className={`text-xs ${adminTheme.buttons.danger}`}
               >
                 Log ud
               </button>
@@ -244,101 +279,82 @@ export default function AdminDashboard() {
             {/* KPI Cards */}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {/* Revenue Card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-xl p-6 shadow-sm border border-slate-200"
-              >
-                <div className="flex items-center">
+              <div className={adminTheme.card.default + ' p-6'}>
+                <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-600">Omsætning</p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {currentStats.revenue.toLocaleString('da-DK')} kr
+                    <p className={`text-sm font-medium ${adminTheme.colors.text.secondary}`}>Omsætning</p>
+                    <p className={`text-2xl font-bold ${adminTheme.colors.text.primary}`}>
+                      {getNumberDisplay(currentStats.revenue, 'currency')}
                     </p>
-                    <p className="text-xs text-green-600 font-medium mt-1">
+                    <p className={`text-xs ${adminTheme.colors.text.muted} mt-1`}>
                       +12.5% fra sidste periode
                     </p>
                   </div>
-                  <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 bg-slate-100 rounded-md flex items-center justify-center">
+                    <svg className={adminTheme.iconLarge} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Tickets Card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-white rounded-xl p-6 shadow-sm border border-slate-200"
-              >
-                <div className="flex items-center">
+              <div className={adminTheme.card.default + ' p-6'}>
+                <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-600">Solgte Billetter</p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {currentStats.tickets.toLocaleString('da-DK')}
+                    <p className={`text-sm font-medium ${adminTheme.colors.text.secondary}`}>Solgte Billetter</p>
+                    <p className={`text-2xl font-bold ${adminTheme.colors.text.primary}`}>
+                      {getNumberDisplay(currentStats.tickets)}
                     </p>
-                    <p className="text-xs text-blue-600 font-medium mt-1">
+                    <p className={`text-xs ${adminTheme.colors.text.muted} mt-1`}>
                       +8.2% fra sidste periode
                     </p>
                   </div>
-                  <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 bg-slate-100 rounded-md flex items-center justify-center">
+                    <svg className={adminTheme.iconLarge} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                     </svg>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Users Card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-white rounded-xl p-6 shadow-sm border border-slate-200"
-              >
-                <div className="flex items-center">
+              <div className={adminTheme.card.default + ' p-6'}>
+                <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-600">Nye Brugere</p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {currentStats.users.toLocaleString('da-DK')}
+                    <p className={`text-sm font-medium ${adminTheme.colors.text.secondary}`}>Nye Brugere</p>
+                    <p className={`text-2xl font-bold ${adminTheme.colors.text.primary}`}>
+                      {getNumberDisplay(currentStats.users)}
                     </p>
-                    <p className="text-xs text-purple-600 font-medium mt-1">
+                    <p className={`text-xs ${adminTheme.colors.text.muted} mt-1`}>
                       +15.7% fra sidste periode
                     </p>
                   </div>
-                  <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 bg-slate-100 rounded-md flex items-center justify-center">
+                    <svg className={adminTheme.iconLarge} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m3 5.197H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Active Raffles Card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-white rounded-xl p-6 shadow-sm border border-slate-200"
-              >
-                <div className="flex items-center">
+              <div className={adminTheme.card.default + ' p-6'}>
+                <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-600">Aktive Lodtrækninger</p>
-                    <p className="text-2xl font-bold text-slate-900">{stats.activeRaffles}</p>
-                    <p className="text-xs text-orange-600 font-medium mt-1">
+                    <p className={`text-sm font-medium ${adminTheme.colors.text.secondary}`}>Aktive Lodtrækninger</p>
+                    <p className={`text-2xl font-bold ${adminTheme.colors.text.primary}`}>{stats.activeRaffles}</p>
+                    <p className={`text-xs ${adminTheme.colors.text.muted} mt-1`}>
                       2 udløber snart
                     </p>
                   </div>
-                  <div className="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 bg-slate-100 rounded-md flex items-center justify-center">
+                    <svg className={adminTheme.iconLarge} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 0v1m-2 0V6a2 2 0 00-2 0v1m2 0V9.5m0 0v3m0-3h3m-3 0h-3m-2-5a9 9 0 1118 0 9 9 0 01-18 0z" />
                     </svg>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </div>
 
             {/* Content Grid */}
@@ -346,12 +362,7 @@ export default function AdminDashboard() {
               {/* Recent Activity */}
               <div className="lg:col-span-2 space-y-6">
                 {/* Recent Purchases */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="bg-white rounded-xl p-6 shadow-sm border border-slate-200"
-                >
+                <div className={adminTheme.card.default + ' p-6'}>
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-slate-900">Seneste Billetkøb</h2>
                     <Link href="/admin/finance" className="text-sm text-blue-600 hover:text-blue-700">
@@ -359,63 +370,52 @@ export default function AdminDashboard() {
                     </Link>
                   </div>
                   <div className="space-y-3">
-                    {recentPurchases.map((purchase, index) => (
-                      <motion.div
+                    {recentPurchases.map((purchase) => (
+                      <div
                         key={purchase.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.1 * index }}
-                        className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+                        className="flex items-center justify-between p-3 bg-slate-50 rounded-md"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                            <span className="text-white text-sm font-bold">
+                          <div className="w-8 h-8 bg-slate-300 rounded-md flex items-center justify-center">
+                            <span className="text-slate-600 text-xs font-medium">
                               {purchase.user.split(' ')[0][0]}{purchase.user.split(' ')[1][0]}
                             </span>
                           </div>
                           <div>
-                            <div className="text-sm font-medium text-slate-900">
+                            <div className={`text-sm font-medium ${adminTheme.colors.text.primary}`}>
                               {purchase.user} købte {purchase.tickets} billetter
                             </div>
-                            <div className="text-xs text-slate-500">
+                            <div className={`text-xs ${adminTheme.colors.text.muted}`}>
                               {purchase.raffle} • {purchase.time}
                             </div>
                           </div>
                         </div>
-                        <div className="text-sm font-semibold text-green-600">
-                          +{purchase.amount} kr
+                        <div className={`text-sm font-medium ${adminTheme.colors.text.secondary}`}>
+                          {getNumberDisplay(purchase.amount, 'currency')}
                         </div>
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
-                </motion.div>
+                </div>
               </div>
 
               {/* Sidebar */}
               <div className="space-y-6">
                 {/* Ending Soon Raffles */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                  className="bg-white rounded-xl p-6 shadow-sm border border-slate-200"
-                >
+                <div className={adminTheme.card.default + ' p-6'}>
                   <h2 className="text-lg font-semibold text-slate-900 mb-4">Udløber Snart</h2>
                   <div className="space-y-4">
-                    {endingSoonRaffles.map((raffle, index) => {
+                    {endingSoonRaffles.map((raffle) => {
                       const daysLeft = Math.ceil((new Date(raffle.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
                       const isUrgent = daysLeft <= 1
                       
                       return (
-                        <motion.div
+                        <div
                           key={raffle.id}
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.1 * index }}
-                          className={`p-4 rounded-lg border-2 ${
+                          className={`p-4 rounded-md border ${
                             isUrgent 
-                              ? 'border-red-200 bg-red-50' 
-                              : 'border-amber-200 bg-amber-50'
+                              ? adminTheme.colors.status.error.border + ' ' + adminTheme.colors.status.error.bg
+                              : adminTheme.colors.status.warning.border + ' ' + adminTheme.colors.status.warning.bg
                           }`}
                         >
                           <div className="flex items-start justify-between">
@@ -423,8 +423,8 @@ export default function AdminDashboard() {
                               <h3 className="text-sm font-medium text-slate-900 truncate">
                                 {raffle.title}
                               </h3>
-                              <p className={`text-xs font-semibold mt-1 ${
-                                isUrgent ? 'text-red-600' : 'text-amber-600'
+                              <p className={`text-xs font-medium mt-1 ${
+                                isUrgent ? adminTheme.colors.status.error.text : adminTheme.colors.status.warning.text
                               }`}>
                                 {daysLeft <= 0 ? 'Udløbet!' : `${daysLeft} dag${daysLeft !== 1 ? 'e' : ''} tilbage`}
                               </p>
@@ -435,20 +435,16 @@ export default function AdminDashboard() {
                           </div>
                           <div className="mt-3">
                             <Link href={`/admin/raffles/${raffle.id}`}>
-                              <button className={`w-full px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                                isUrgent
-                                  ? 'bg-red-600 text-white hover:bg-red-700'
-                                  : 'bg-amber-600 text-white hover:bg-amber-700'
-                              }`}>
+                              <button className={`w-full text-xs ${isUrgent ? adminTheme.buttons.danger : adminTheme.buttons.secondary}`}>
                                 Administrer
                               </button>
                             </Link>
                           </div>
-                        </motion.div>
+                        </div>
                       )
                     })}
                   </div>
-                </motion.div>
+                </div>
               </div>
             </div>
           </div>

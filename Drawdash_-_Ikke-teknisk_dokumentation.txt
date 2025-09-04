@@ -1,0 +1,115 @@
+DRAW DASH – IKKE-TEKNISK DOKUMENTATION
+
+1) Formål og overblik
+- Formål: DrawDash er en moderne platform til online lodtrækninger/konkurrencer, hvor brugere kan købe lodder til præmier, og vindere udtrækkes på en retfærdig og dokumentérbar måde.
+- Mål: Give en sikker, gennemsigtig og brugervenlig oplevelse for både deltagere og administratorer.
+- Status: Koden indeholder en fuld frontend (web) med realistiske flows, demo‑data og services. Flere dele kører i “demo/mock mode” (f.eks. betaling og bankoverførsler), hvilket betyder, at de er klar til rigtig integration, men ikke er koblet til live systemer endnu.
+
+2) Målgrupper
+- Brugere: Privatpersoner der registrerer sig, køber lodder og deltager i lodtrækninger.
+- Administratorer: Medarbejdere der opretter/vedligeholder lodtrækninger, håndterer udbetalinger, følger aktivitet og sikrer efterlevelse af regler (GDPR, KYC, anti‑svindel mm.).
+
+3) Hovedfunktioner (bruger)
+- Gennemse lodtrækninger: Se aktive lodtrækninger med pris, antal billetter, nedtælling og salgspåvirkning (progress bar).
+- Køb af billetter: Vælg antal billetter og indtast betalingsoplysninger (demo‑betaling; klar til Stripe/PayPal).
+- Konto og login: Registrering, login og kontostyring. Point og loyalitetsscore er synlige i UI.
+- Vinderannonceringer: Se tidligere vindere, historier og social proof.
+- Responstivt design: Fungerer på mobil, tablet og desktop.
+
+4) Hovedfunktioner (administrator)
+- Admin‑dashboard: Overblik over lodtrækninger, salg, status (kommende/aktive/afsluttede) og aktivitetshistorik.
+- Opret/rediger lodtrækninger: Titel, beskrivelse, pris, antal billetter, slutdato m.m.
+- Vinderudtrækning: Retfærdig, dokumenterbar udtrækning (se afsnit “Retfærdighed & gennemsigtighed”).
+- Salgs- og adfærdsindsigt: Grundlæggende analyser over køb, engagement og segmenter (demo‑niveau).
+- Brugeradministration: Blokér/ophæv blokering, tilføj noter, tildel gratis billetter, se historik.
+- Udbetalinger: Godkend/afvis anmodninger og håndter udbetalingsmetoder (bank, MobilePay, PayPal – i demo tilstand).
+
+5) Brugerrejse (kort)
+- 1) Finder en lodtrækning → 2) Vælger antal billetter → 3) Angiver betalingsoplysninger → 4) Modtager bekræftelse → 5) Afventer udtrækning → 6) Eventuel gevinst og udbetaling.
+
+6) Retfærdighed & gennemsigtighed (lodtrækninger)
+- Kryptografisk tilfældighed: Udtrækning bruger en “provably fair” metode, der kombinerer sikre tilfældighedskilder og kan verificeres efterfølgende.
+- Revisionslog: Hver udtrækning gemmer et revisionsspor (seed, hash og resultat), så processen kan dokumenteres og kontrolleres.
+- Validering: Resultater kan reproduceres på baggrund af de offentliggjorte data (bevis og seed), så man kan efterprøve, at vinderen er udpeget korrekt.
+- For offentlighed og tilsyn: Systemet kan eksportere en audit‑log for en konkret lodtrækning.
+
+7) Sikkerhed og misbrugsforebyggelse
+- Anti‑svindel (adfærds- og betalingsmønstre):
+  - Opdager tegn på misbrug som mange konti på samme enhed/IP, kortdeling mellem flere brugere, høj betalingshastighed og mønstre der tyder på korttestning.
+  - Markerer sager efter alvorlighed (lav → kritisk) og giver anbefalet handling (blokering, manuel kontrol, mv.).
+- Rate‑limitering: Begrænser antal forespørgsler pr. tidsvindue (f.eks. login, betaling), så automatiserede forsøg bremses.
+- Betalingsmetoder (fingerprinting): Betalingskort fingeraftrykkes (hashes) for at opdage deling og risikomønstre – uden at gemme rå kortdata.
+- Sessions og login: Simuleret i demo‑tilstand; klar til at blive erstattet af server‑side sessioner eller OIDC.
+- Data adskillelse: For produktion anbefales server‑side storage (database og API) frem for browser‑storage (se “Begrænsninger i demo”).
+
+8) Databeskyttelse (GDPR) og samtykke
+- Samtykkestyring: Brugere kan give og justere samtykke til fx analyse, markedsføring, personalisering og tredjepartsdeling. “Nødvendige” cookies er altid aktive.
+- Rettigheder: Understøtter anmodninger om indsigt, berigtigelse, sletning, dataportabilitet m.m. (workflow og eksport i JSON, klar til at koble på backend).
+- Audit‑log: Samtykkehandlinger og datatilgange logges til intern dokumentation og efterlevelse.
+- Data retention: Indbygget politik (konfigurerbar) for opbevaringsperiode – skal endeligt håndhæves i backend/database i produktion.
+
+9) Betalinger og økonomi
+- Demo‑betaling: Frontend‑formular og flows er klar til at blive koblet til Stripe/PayPal/Square. I koden er der fejl‑ og succesflows, men ingen liveopkrævning.
+- Billet‑tildeling: Billetnumre tildeles sekventielt pr. køb, og der er logik for at opgøre solgte billetter.
+- Loyalitet og point: Brugere optjener point og kan få bonusser, cashback og gratis billetter (regler og visning er klar i UI/services).
+
+10) Udbetalinger og KYC (demo‑flow)
+- Udbetalingsmetoder: Bankoverførsel, MobilePay og PayPal kan tilføjes/verificeres (i demo). 
+- KYC‑trin: Regler for beløbsgrænser og krav om KYC ved større beløb. Manuelle gennemgange kan markeres.
+- Grænser og gebyrer: Konfigurerede minimum/maksimum for udbetaling, daglige/ugentlige/månedlige limits og et simpelt gebyr (demo‑beregning).
+- Compliance‑tjek: Automatiske checks (fx beløb, hyppighed, risikoscore) før behandling. I demo logges og simuleres processer – i produktion kobles til rigtige systemer/udbetalingspartnere.
+
+11) Systemlandskab og integrationer
+- Markedsføring: Klar til integration med Facebook Ads (Custom Audiences/Conversions API) og Google Ads (Customer Match/konverteringer). Kører pt. i mock‑mode med udskifteligt interface.
+- Event tracking: Internt sporingssystem for brugeradfærd (sidevisninger, køb, engagement, fejl). Anvendes til simple analyser og kan føde CRM/automation.
+- CRM/Automation (demo): Hooks til fx velkomstflows, første køb, gevinst m.m. – beregnet til at blive koblet på et rigtigt CRM/ESP.
+
+12) Teknologi og drift (kort, ikke‑teknisk)
+- Webplatform: Bygget på en moderne webramme (Next.js) med TypeScript og Tailwind for design. Det betyder hurtige sider, god mobiloplevelse og klare designprincipper.
+- Database (til produktion): Medfølgende skema (PostgreSQL) definerer brugere, lodtrækninger, køb, betalinger, vindere, logning m.m. – klar til migreringer.
+- Konfiguration: Miljøfiler (`.env`) for nøgler, API‑adgange og driftsindstillinger. I demo bruges lokale standarder.
+- Deployment: Kan køre på Vercel, Docker eller anden Node‑hosting. I demo er der ingen eksterne afhængigheder ud over standard webstack.
+
+13) Ydelse og skalerbarhed (rammer)
+- Rate‑limits: Indbygget begrænsning på API‑kald i UI‑laget (skal flyttes til backend i produktion) for at beskytte mod misbrug.
+- Statisk/gengenereret indhold: Liste‑/detaljesider kan optimeres til hurtig indlæsning. Billeder og komponenter er mobile‑optimerede.
+- Skalering: Når backend tilføjes, kan man skalere via database, cache, CDN og jobkøer (betalings‑ og udbetalingskøer, rapporter osv.).
+
+14) Begrænsninger i den nuværende demo (vigtigt)
+- Lokal storage i browseren: Flere services gemmer data i browseren (localStorage) for at demonstrere flows. I produktion skal det erstattes af en sikker backend og database.
+- Mock‑betalinger og udbetalinger: Ingen rigtige transaktioner. Integrationer til Stripe/PayPal/Bank skal aktiveres og sikkerhedsgodkendes.
+- IP/VPN‑tjek m.m.: Anti‑svindel kører med simple regler og mock‑data. I produktion bør der kobles til eksterne risikokilder/leverandører.
+- GDPR‑processer: Flows, logs og eksport findes, men endelig håndhævelse (sletning på tværs af systemer, opbevaringspolitikker) kræver backend‑implementering.
+
+15) Forudsætninger og opsætning (til drift/afprøvning)
+- For udvikling/demobyg: Node 18+, `npm install`, `npm run dev`, åbnes i browser på http://localhost:3000.
+- For produktion: Opsæt PostgreSQL efter medfølgende database‑skema og migrering. Tilføj rigtige nøgler til betaling, e‑mail/SMS og marketingplatforme i miljøvariabler.
+
+16) Retningslinjer for god drift og compliance
+- Retfærdighed: Offentliggør beviser for udtrækning (seed/hash), og gem revisionslog for hver draw.
+- KYC/AML: Kræv verificering ved højere udbetalinger; log og dokumentér gennemgange.
+- Dataminimering: Indsaml kun nødvendige data og dokumentér formål og opbevaringsperioder.
+- Sikkerhed: Flyt al følsom logik og data til backend. Brug sikre sessioner, kryptering, inputvalidering og mindst mulige rettigheder.
+
+17) Fremtidig udbygning (anbefalinger)
+- Backend‑API og database: Implementér server‑side endpoints, auth og RBAC (roller/rettigheder). Flyt al forretningslogik fra browseren til serveren.
+- Betalingsgateway: Aktivér Stripe/PayPal i “live mode” med webhooks til bekræftelse af betaling, refusioner og chargebacks.
+- Udbetalingspartnere: Integrér til bank/udbetalingsløsninger (fx Stripe Connect/Wise). Automatisér udbetalinger med sikker godkendelse.
+- Avanceret anti‑svindel: Brug dedikerede tjenester (device fingerprinting, IP‑intelligens, kortsvindel‑signaler) og maskinlæringsmodeller.
+- Overvågning og alarmer: Logs, dashboards og alarmer for kritiske flows (betaling, udtrækning, udbetaling).
+- Revisions- og eksportværktøjer: Én‑klik eksport af regulatoriske rapporter (GDPR, finans, spilmyndighed).
+
+18) Ordliste (kort)
+- “Demo/mock mode”: Funktion ser rigtig ud, men udfører ingen rigtige transaktioner – bruges til test/visning.
+- “Provably fair”: En metode hvor udfaldet kan efterregnes og verificeres af andre, så processen er gennemsigtig.
+- “KYC/AML”: Kend‑din‑kunde og anti‑hvidvask, standarder for identifikation og kontrol ved udbetalinger og større beløb.
+
+Bilag – hvad systemet indeholder under motorhjelmen (forståeligt sprog)
+- Retfærdigt lodtrækningsmodul: Bruger sikre tilfældighedskilder og gemmer “beviser” (hashes) for gennemsigtighed.
+- Anti‑svindel: Kigger efter tegn på misbrug (flere konti, kortdeling, hurtige køb) og anbefaler handlinger.
+- Samtykke og GDPR: Registrerer samtykkevalg, understøtter brugeranmodninger (indsigt/sletning) og fører audit‑log.
+- Økonomi (demo): Håndterer saldi (kontant, bonus, gratis billetter), simple gebyrer og limits, udbetalingsanmodninger.
+- Integrationer (demo): Klar til markedsføring og konverteringssporing (Facebook/Google) og CRM‑triggere.
+
+Kort konklusion
+DrawDash er en komplet løsning til online lodtrækninger med fokus på retfærdighed, sikkerhed og efterlevelse. Koden demonstrerer hele bruger- og admin‑oplevelsen og har tydelige steder at aktivere rigtige integrationer til betaling, udbetaling, anti‑svindel og GDPR‑håndhævelse. For produktion skal data og forretningslogik flyttes til en sikker backend med database og dokumenterede processer.

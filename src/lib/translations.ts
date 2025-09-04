@@ -4,41 +4,41 @@ export const translations = {
     home: 'Hjem',
     activeRaffles: 'Aktive Lodtrækninger',
     winners: 'Vindere',
-    howItWorks: 'Sådan Fungerer Det',
-    login: 'Log Ind',
-    signUp: 'Tilmeld Dig',
+    howItWorks: 'Sådan fungerer det',
+    login: 'Log ind',
+    signUp: 'Tilmeld dig',
     
     // Hero Section
-    heroTitle: 'Vind Fantastiske Præmier',
-    heroSubtitle: 'Deltag i spændende lodtrækninger fra kun £0.79. Fair lodtrækninger, øjeblikkelige resultater og utrolige præmier venter på dig!',
-    freeEntryTitle: '🆓 Gratis Deltagelse Tilgængelig!',
+    heroTitle: 'Vind fantastiske præmier',
+    heroSubtitle: 'Deltag i spændende lodtrækninger fra kun 10 kr. Fair lodtrækninger, øjeblikkelige resultater og utrolige præmier venter på dig!',
+    freeEntryTitle: '🆓 Gratis deltagelse tilgængelig!',
     freeEntryText: 'Deltag i enhver lodtrækning GRATIS ved at sende et postkort med dine oplysninger. Se individuelle lodtrækninger for postinstruktioner.',
-    viewActiveRaffles: 'Se Aktive Lodtrækninger',
+    viewActiveRaffles: 'Se aktive lodtrækninger',
     
     // Stats
     startingPrice: 'Startpris',
-    fairDraws: 'Fair Lodtrækninger',
-    instantResults: 'Øjeblikkelige Resultater',
+    fairDraws: 'Fair lodtrækninger',
+    instantResults: 'Øjeblikkelige resultater',
     
     // Features
-    fairTransparent: 'Fair & Gennemsigtig',
+    fairTransparent: 'Fair og gennemsigtig',
     fairDescription: 'Alle lodtrækninger udføres fair med gennemsigtig tilfældig udvælgelse',
-    lowEntryCost: 'Lav Deltagelsespris',
-    lowCostDescription: 'Deltag i lodtrækninger fra kun £0.79 - overkommeligt for alle',
-    instantResultsTitle: 'Øjeblikkelige Resultater',
+    lowEntryCost: 'Lav deltagelsespris',
+    lowCostDescription: 'Deltag i lodtrækninger fra kun 10 kr - overkommeligt for alle',
+    instantResultsTitle: 'Øjeblikkelige resultater',
     instantDescription: 'Vindere annonceres øjeblikkeligt efter hver lodtræknings afslutning',
     
     // Raffle Card
     progress: 'Fremgang',
     tickets: 'billetter',
-    timeRemaining: 'Tid Tilbage',
+    timeRemaining: 'Tid tilbage',
     days: 'Dage',
     hours: 'Timer',
     mins: 'Min',
     secs: 'Sek',
-    drawEnded: 'Lodtrækning Afsluttet',
+    drawEnded: 'Lodtrækning afsluttet',
     prizeValue: 'Præmieværdi',
-    enterNow: 'Deltag Nu',
+    enterNow: 'Deltag nu',
     
     // Raffle Page
     freeEntryByPost: 'Gratis Deltagelse via Post',
@@ -202,7 +202,7 @@ export const translations = {
     
     // Hero Section
     heroTitle: 'Win Amazing Prizes',
-    heroSubtitle: 'Enter exciting raffles starting from just £0.79. Fair draws, instant results, and incredible prizes waiting for you!',
+    heroSubtitle: 'Enter exciting raffles starting from just 10 DKK. Fair draws, instant results, and incredible prizes waiting for you!',
     freeEntryTitle: '🆓 Free Entry Available!',
     freeEntryText: 'Enter any raffle for FREE by sending a postcard with your details. See individual raffles for postal entry instructions.',
     viewActiveRaffles: 'View Active Raffles',
@@ -216,7 +216,7 @@ export const translations = {
     fairTransparent: 'Fair & Transparent',
     fairDescription: 'All draws are conducted fairly with transparent random selection',
     lowEntryCost: 'Low Entry Cost',
-    lowCostDescription: 'Enter raffles starting from just £0.79 - affordable for everyone',
+    lowCostDescription: 'Enter raffles starting from just 10 DKK - affordable for everyone',
     instantResultsTitle: 'Instant Results',
     instantDescription: 'Winners announced immediately after each draw ends',
     

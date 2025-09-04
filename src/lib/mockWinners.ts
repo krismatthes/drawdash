@@ -48,9 +48,9 @@ export const mockWinners: Winner[] = [
     id: '4',
     name: 'Lars K.',
     city: 'Aalborg',
-    prize: '£500 Cash',
+    prize: '6.500 kr kontant',
     prizeValue: 500,
-    raffleTitle: '🎯 INSTANT WIN: £500 Cash',
+    raffleTitle: '🎯 INSTANT WIN: 6.500 kr kontant',
     wonDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
     image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
     testimonial: 'Instant win kampagnen var utrolig spændende! Pengene var på min konto samme dag.'
@@ -70,9 +70,9 @@ export const mockWinners: Winner[] = [
     id: '6',
     name: 'Thomas P.',
     city: 'Horsens',
-    prize: '£100 Amazon Gavekort',
+    prize: '1.300 kr Amazon gavekort',
     prizeValue: 100,
-    raffleTitle: '£100 Amazon Gavekort',
+    raffleTitle: '1.300 kr Amazon gavekort',
     wonDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), // 15 days ago
     image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
     testimonial: 'Perfekt til at købe julegaver! Hurtig levering af gavekort via email.'

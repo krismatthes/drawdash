@@ -4,6 +4,7 @@
 
 import { Raffle, RaffleEntry } from '@/types/raffle'
 import { mockRaffles } from './mockData'
+import { secureRNG } from './secureRNG'
 
 // Storage keys
 const RAFFLES_STORAGE_KEY = 'drawdash_raffles'
@@ -183,18 +184,23 @@ export const raffleService = {
     }
   },
 
-  // Winner selection
-  selectWinner: (raffleId: string): { winner: RaffleEntry | null; winningTicket: number | null } => {
+  // Winner selection - UK compliant with provably fair system
+  selectWinner: async (raffleId: string): Promise<{ 
+    winner: RaffleEntry | null; 
+    winningTicket: number | null;
+    drawResult: any;
+    auditLog: string;
+  }> => {
     const raffle = raffleService.getRaffleById(raffleId)
     if (!raffle || raffle.soldTickets === 0) {
-      return { winner: null, winningTicket: null }
+      return { winner: null, winningTicket: null, drawResult: null, auditLog: '' }
     }
 
     const entries = JSON.parse(localStorage.getItem(RAFFLE_ENTRIES_STORAGE_KEY) || '[]') as RaffleEntry[]
     const raffleEntries = entries.filter(entry => entry.raffleId === raffleId)
     
     if (raffleEntries.length === 0) {
-      return { winner: null, winningTicket: null }
+      return { winner: null, winningTicket: null, drawResult: null, auditLog: '' }
     }
 
     // Get all ticket numbers
@@ -203,8 +209,19 @@ export const raffleService = {
       allTickets.push(...entry.ticketNumbers)
     })
 
-    // Select random winning ticket
-    const winningTicket = allTickets[Math.floor(Math.random() * allTickets.length)]
+    // Use secure RNG system for UK compliance
+    const drawResult = await secureRNG.conductProvableFairDraw(
+      raffleId,
+      allTickets.length,
+      raffleEntries.length,
+      {
+        recordVideo: true, // Required for UK compliance
+        externalWitness: true
+      }
+    )
+
+    // Map winning number to actual ticket
+    const winningTicket = allTickets[drawResult.winningNumber - 1]
     
     // Find the winner
     const winner = raffleEntries.find(entry => 
@@ -218,11 +235,19 @@ export const raffleService = {
       logActivity(
         raffleId, 
         'winner_selected', 
-        `Winner selected for "${raffle.title}" - Ticket #${winningTicket}`
+        `UK Compliant Winner Selected - Draw ID: ${drawResult.drawId}, Ticket #${winningTicket}, Proof: ${drawResult.proof.substring(0, 20)}...`
       )
     }
 
-    return { winner: winner || null, winningTicket }
+    // Generate audit log for UK authorities
+    const auditLog = await secureRNG.exportAuditLog(raffleId)
+
+    return { 
+      winner: winner || null, 
+      winningTicket,
+      drawResult,
+      auditLog
+    }
   },
 
   // Activity log

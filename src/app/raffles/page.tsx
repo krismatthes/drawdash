@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import PremiumHeader from '@/components/PremiumHeader'
+import PremiumFooter from '@/components/PremiumFooter'
 import PremiumRaffleCard from '@/components/PremiumRaffleCard'
 import GradientMesh from '@/components/GradientMesh'
 import { mockRaffles } from '@/lib/mockData'
@@ -154,6 +155,8 @@ export default function RafflesPage() {
           )}
         </div>
       </main>
+      
+      <PremiumFooter />
     </div>
   )
 }

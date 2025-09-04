@@ -3,6 +3,7 @@
 import { mockRaffles } from '@/lib/mockData'
 import RaffleCarousel from '@/components/RaffleCarousel'
 import PremiumHeader from '@/components/PremiumHeader'
+import PremiumFooter from '@/components/PremiumFooter'
 import GradientMesh from '@/components/GradientMesh'
 import PremiumButton from '@/components/PremiumButton'
 import Link from 'next/link'
@@ -753,77 +754,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-950 text-slate-300 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center mb-6">
-                <div className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
-                  <h1 className="text-3xl font-black tracking-tight">DrawDash</h1>
-                </div>
-              </div>
-              <p className="text-slate-400 mb-6 max-w-md leading-relaxed">
-                Danmarks førende platform for lodtrækninger og konkurrencer. 
-                Sikker, transparent og fair - med over 2.5M kr uddelt til vores vindere.
-              </p>
-              
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-green-400 font-semibold">Online Nu</span>
-                <span className="text-slate-500">•</span>
-                <span className="text-slate-400 text-sm">Licenseret i Danmark</span>
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="font-bold text-white mb-4">Hurtige Links</h3>
-              <ul className="space-y-3">
-                <li><a href="/raffles" className="hover:text-blue-400 transition-colors flex items-center gap-2"><span className="text-xs">🎯</span> Aktive Lodtrækninger</a></li>
-                <li><a href="/winners" className="hover:text-blue-400 transition-colors flex items-center gap-2"><span className="text-xs">🏆</span> Vindere</a></li>
-                <li><a href="/how-it-works" className="hover:text-blue-400 transition-colors flex items-center gap-2"><span className="text-xs">❓</span> Sådan Fungerer Det</a></li>
-                <li><a href="/faq" className="hover:text-blue-400 transition-colors flex items-center gap-2"><span className="text-xs">💬</span> FAQ</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="font-bold text-white mb-4">Support & Sikkerhed</h3>
-              <ul className="space-y-3">
-                <li><a href="/contact" className="hover:text-blue-400 transition-colors flex items-center gap-2"><span className="text-xs">📧</span> Kontakt Os</a></li>
-                <li><a href="/terms" className="hover:text-blue-400 transition-colors flex items-center gap-2"><span className="text-xs">📋</span> Vilkår & Betingelser</a></li>
-                <li><a href="/privacy" className="hover:text-blue-400 transition-colors flex items-center gap-2"><span className="text-xs">🔒</span> Privatlivspolitik</a></li>
-                <li><a href="/responsible-gaming" className="hover:text-blue-400 transition-colors flex items-center gap-2"><span className="text-xs">⚖️</span> Ansvarligt Spil</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-slate-800 mt-12 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="flex items-center gap-6 mb-4 md:mb-0">
-                <p className="text-slate-500 text-sm">
-                  © 2024 DrawDash. Alle rettigheder forbeholdes.
-                </p>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <span className="text-green-400 text-sm font-semibold">Verificeret & Sikker</span>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-full">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-green-400 text-xs font-semibold">LIVE</span>
-                </div>
-                <span className="text-slate-400 text-xs">Server Status: Optimal</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <PremiumFooter />
     </div>
   )
 }

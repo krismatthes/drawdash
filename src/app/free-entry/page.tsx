@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import PremiumHeader from '@/components/PremiumHeader'
+import PremiumFooter from '@/components/PremiumFooter'
 import GradientMesh from '@/components/GradientMesh'
 import PremiumButton from '@/components/PremiumButton'
 
@@ -160,6 +161,8 @@ export default function FreeEntryPage() {
           </motion.div>
         </div>
       </main>
+      
+      <PremiumFooter />
     </div>
   )
 }
