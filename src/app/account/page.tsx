@@ -1031,7 +1031,7 @@ function AccountContent() {
                   <p className="text-sm sm:text-base text-slate-600">Administrer din balance og anmod om udbetalinger</p>
                 </div>
                 
-                <BalanceDashboard userId={user.id} />
+                <BalanceDashboard />
               </motion.div>
             )}
 
