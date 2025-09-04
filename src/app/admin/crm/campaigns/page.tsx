@@ -366,9 +366,9 @@ export default function CampaignManagement() {
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            campaign.type === 'email' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                            'templateId' in campaign ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
                           }`}>
-                            {campaign.type === 'email' ? 'Email' : 'SMS'}
+                            {'templateId' in campaign ? 'Email' : 'SMS'}
                           </span>
                         </td>
                         <td className="px-6 py-4">
