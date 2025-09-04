@@ -132,9 +132,15 @@ class BalanceNotificationService {
 
     // Send SMS for high amounts
     if (payoutRequest.netAmount >= 1000) {
-      const smsSent = await this.smsService.sendSMS(
+      const smsSent = await this.smsService.sendTransactionalSMS(
+        'user-id', // Would get from user service  
         '+4512345678', // Would get from user service
-        `DrawDash: ${payoutRequest.netAmount.toLocaleString('da-DK')} DKK overført til ${payoutRequest.method.name}. Ref: ${payoutRequest.transferReference}`
+        'payout_confirmation',
+        {
+          amount: payoutRequest.netAmount,
+          method: payoutRequest.method.name,
+          reference: payoutRequest.transferReference
+        }
       )
       console.log('📱 High amount payout SMS sent:', smsSent)
     }
