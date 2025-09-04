@@ -5,14 +5,14 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { adminTheme, getNumberDisplay } from '@/lib/admin-theme'
-import { GDPR, gdprService } from '@/lib/gdprService'
+import { GDPR, gdprService, type GDPRAnalytics, type DataSubjectRequest, type DataAuditLog } from '@/lib/gdprService'
 
 export default function GDPRCompliance() {
   const { user, isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
-  const [analytics, setAnalytics] = useState<any>(null)
-  const [pendingRequests, setPendingRequests] = useState<any[]>([])
-  const [auditLog, setAuditLog] = useState<any[]>([])
+  const [analytics, setAnalytics] = useState<GDPRAnalytics | null>(null)
+  const [pendingRequests, setPendingRequests] = useState<DataSubjectRequest[]>([])
+  const [auditLog, setAuditLog] = useState<DataAuditLog[]>([])
   const [selectedTab, setSelectedTab] = useState<'overview' | 'requests' | 'audit' | 'consents'>('overview')
 
   useEffect(() => {
@@ -282,7 +282,7 @@ export default function GDPRCompliance() {
                                   style={{ width: `${(Number(count) / analytics.totalConsents) * 100}%` }}
                                 ></div>
                               </div>
-                              <span className="text-sm font-medium text-slate-900 w-8">{count}</span>
+                              <span className="text-sm font-medium text-slate-900 w-8">{Number(count)}</span>
                             </div>
                           </div>
                         ))}
