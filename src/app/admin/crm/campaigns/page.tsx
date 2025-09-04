@@ -388,10 +388,12 @@ export default function CampaignManagement() {
                           <div className="text-sm">
                             <div className="text-slate-900">{getNumberDisplay(campaign.metrics?.sent || 0)} sendt</div>
                             <div className="text-xs text-slate-500">
-                              {'templateId' in campaign 
-                                ? `${(campaign as any).metrics?.opened || 0} åbnet • ${(campaign as any).metrics?.clicked || 0} klik`
-                                : `${(campaign as any).metrics?.delivered || 0} leveret • ${(campaign as any).metrics?.clicked || 0} klik`
-                              }
+                              {(() => {
+                                const campaignMetrics = (campaign as any).metrics
+                                return 'templateId' in campaign 
+                                  ? `${campaignMetrics?.opened || 0} åbnet • ${campaignMetrics?.clicked || 0} klik`
+                                  : `${campaignMetrics?.delivered || 0} leveret • ${campaignMetrics?.clicked || 0} klik`
+                              })()}
                             </div>
                           </div>
                         </td>
