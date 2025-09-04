@@ -40,7 +40,8 @@ export default function CampaignManagement() {
 
   const filteredCampaigns = campaigns.filter(campaign => {
     const matchesStatus = filterStatus === 'all' || campaign.status === filterStatus
-    const matchesType = filterType === 'all' || campaign.type === filterType
+    const campaignType = 'templateId' in campaign ? 'email' : 'sms'
+    const matchesType = filterType === 'all' || campaignType === filterType
     return matchesStatus && matchesType
   })
 
