@@ -47,10 +47,12 @@ export default function CampaignManagement() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'sent': case 'completed':
+      case 'sent':
         return 'bg-green-100 text-green-800'
-      case 'active': case 'sending':
+      case 'sending':
         return 'bg-blue-100 text-blue-800'
+      case 'scheduled':
+        return 'bg-purple-100 text-purple-800'
       case 'paused':
         return 'bg-yellow-100 text-yellow-800'
       case 'draft':
@@ -375,7 +377,7 @@ export default function CampaignManagement() {
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(campaign.status)}`}>
                             {campaign.status === 'draft' ? 'Kladde' : 
                              campaign.status === 'sent' ? 'Sendt' :
-                             campaign.status === 'active' ? 'Aktiv' :
+                             campaign.status === 'sending' ? 'Sender' :
                              campaign.status === 'scheduled' ? 'Planlagt' : 'Pauseret'}
                           </span>
                         </td>
@@ -386,7 +388,10 @@ export default function CampaignManagement() {
                           <div className="text-sm">
                             <div className="text-slate-900">{getNumberDisplay(campaign.metrics?.sent || 0)} sendt</div>
                             <div className="text-xs text-slate-500">
-                              {campaign.metrics?.opened || 0} åbnet • {campaign.metrics?.clicked || 0} klik
+                              {'templateId' in campaign 
+                                ? `${(campaign.metrics as any)?.opened || 0} åbnet • ${campaign.metrics?.clicked || 0} klik`
+                                : `${campaign.metrics?.delivered || 0} leveret • ${campaign.metrics?.clicked || 0} klik`
+                              }
                             </div>
                           </div>
                         </td>
