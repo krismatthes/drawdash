@@ -287,8 +287,8 @@ export default function CampaignManagement() {
                     <p className={`text-sm font-medium ${adminTheme.colors.text.secondary}`}>Åbningsrate</p>
                     <p className={`text-2xl font-bold ${adminTheme.colors.text.primary}`}>
                       {campaigns.length > 0 ? 
-                        ((campaigns.reduce((sum, c) => sum + (c.metrics?.opened || 0), 0) / 
-                          Math.max(campaigns.reduce((sum, c) => sum + (c.metrics?.sent || 0), 0), 1)) * 100).toFixed(1)
+                        ((campaigns.filter(c => 'templateId' in c).reduce((sum, c: any) => sum + (c.metrics?.opened || 0), 0) / 
+                          Math.max(campaigns.filter(c => 'templateId' in c).reduce((sum, c) => sum + (c.metrics?.sent || 0), 0), 1)) * 100).toFixed(1)
                         : '0'}%
                     </p>
                   </div>
