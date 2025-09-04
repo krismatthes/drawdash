@@ -3,8 +3,8 @@
 // Balance & Payout Notification Service
 // Handles notifications for balance changes, payouts, and related events
 
-import { EmailService } from './emailService'
-import { SMSService } from './smsService'
+import { emailService } from './emailService'
+import { smsService } from './smsService'
 import { UserBalance, BalanceTransaction } from './balanceService'
 import { PayoutRequest } from './payoutService'
 
@@ -28,8 +28,8 @@ export interface BalanceNotification {
 
 class BalanceNotificationService {
   private notifications: BalanceNotification[] = []
-  private emailService = new EmailService()
-  private smsService = new SMSService()
+  private emailService = emailService
+  private smsService = smsService
 
   constructor() {
     this.loadStoredData()
