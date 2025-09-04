@@ -360,7 +360,7 @@ export default function AdminBalanceManagement() {
                               Bruger {payout.userId}
                             </div>
                             <div className="text-sm text-slate-500">
-                              KYC: {payout.kycStatus === 'approved' ? '✅' : '⚠️'} {payout.kycStatus}
+                              KYC: {payout.kycStatus === 'verified' ? '✅' : '⚠️'} {payout.kycStatus}
                             </div>
                           </td>
                           <td className="px-6 py-4">
