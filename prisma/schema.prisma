@@ -37,6 +37,7 @@ model User {
   auditLogs         AuditLog[]
   createdRaffles    Raffle[] @relation("RaffleCreator")
   wonRaffles        Raffle[] @relation("RaffleWinner")
+  drawAudits        DrawAudit[]
 
   @@map("users")
 }
@@ -83,6 +84,7 @@ model Raffle {
   winner      User?          @relation("RaffleWinner", fields: [winnerUserId], references: [id])
   prizes      RafflePrize[]
   entries     RaffleEntry[]
+  drawAudits  DrawAudit[]
 
   @@map("raffles")
 }
@@ -230,4 +232,31 @@ model PointTransaction {
   raffleEntry RaffleEntry? @relation(fields: [raffleEntryId], references: [id])
 
   @@map("point_transactions")
+}
+
+// Draw audit for transparency and compliance
+model DrawAudit {
+  id                   String   @id @default(cuid())
+  raffleId             String   @map("raffle_id")
+  drawMethod           String   @map("draw_method")    // 'CRYPTO_SECURE', 'EXTERNAL_WITNESS', etc.
+  randomSeed           String   @map("random_seed")    // For verification
+  seedHash             String?  @map("seed_hash")      // Pre-commitment hash
+  winningTicketNumber  Int      @map("winning_ticket_number")
+  winnerUserId         String   @map("winner_user_id")
+  totalTickets         Int      @map("total_tickets")
+  participantCount     Int      @map("participant_count")
+  drawProof            String   @map("draw_proof")     // Base64 encoded proof data
+  witnessSignature     String?  @map("witness_signature")
+  videoUrl             String?  @map("video_url")
+  blockchainHash       String?  @map("blockchain_hash") // External entropy
+  timestamp            DateTime @default(now())
+  isVerified           Boolean  @default(false) @map("is_verified")
+  verifiedAt           DateTime? @map("verified_at")
+  verifiedBy           String?  @map("verified_by")
+  
+  // Relations
+  raffle Raffle @relation(fields: [raffleId], references: [id], onDelete: Cascade)
+  winner User   @relation(fields: [winnerUserId], references: [id])
+  
+  @@map("draw_audits")
 }
