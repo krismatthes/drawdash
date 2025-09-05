@@ -251,6 +251,11 @@ class EmailService {
     }, null, 2)
   }
 
+  // Public method to check mock mode status
+  isMockMode(): boolean {
+    return this.mockMode
+  }
+
   // Helper methods for mock mode
   private getTemplateSubject(templateId: string, data: Record<string, any>): string {
     const templates: Record<string, string> = {
@@ -393,5 +398,5 @@ export const Email = {
   exportData: () => emailService.exportCampaignData(),
   
   // Production ready check
-  isProductionReady: () => !emailService.mockMode
+  isProductionReady: () => !emailService.isMockMode()
 }
