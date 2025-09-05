@@ -559,8 +559,15 @@ class PayoutService {
 
   // Storage helpers
   private loadStoredData(): void {
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined') {
+      // Server-side: Initialize with empty data
+      this.payoutRequests = []
+      this.payoutMethods = {}
+      this.kycVerifications = []
+      return
+    }
 
+    // Client-side: Load from localStorage
     const storedRequests = localStorage.getItem('payout_requests')
     const storedMethods = localStorage.getItem('payout_methods')
     const storedKyc = localStorage.getItem('kyc_verifications')

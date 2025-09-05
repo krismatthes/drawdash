@@ -500,6 +500,15 @@ ${analytics.riskMetrics.expiredConsents > 0 ? '⚠️ Action needed: Update expi
 
   // Storage helpers
   private loadStoredData(): void {
+    if (typeof window === 'undefined') {
+      // Server-side: Initialize with empty data
+      this.consents = []
+      this.requests = []
+      this.auditLog = []
+      return
+    }
+    
+    // Client-side: Load from localStorage
     const storedConsents = localStorage.getItem('gdpr_consents')
     const storedRequests = localStorage.getItem('gdpr_requests')
     const storedAuditLog = localStorage.getItem('gdpr_audit_log')
@@ -510,6 +519,8 @@ ${analytics.riskMetrics.expiredConsents > 0 ? '⚠️ Action needed: Update expi
   }
 
   private saveData(): void {
+    if (typeof window === 'undefined') return
+    
     localStorage.setItem('gdpr_consents', JSON.stringify(this.consents))
     localStorage.setItem('gdpr_requests', JSON.stringify(this.requests))
     localStorage.setItem('gdpr_audit_log', JSON.stringify(this.auditLog))

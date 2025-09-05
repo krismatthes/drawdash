@@ -523,8 +523,14 @@ class BalanceComplianceService {
 
   // Storage helpers
   private loadStoredData(): void {
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined') {
+      // Server-side: Initialize with empty data
+      this.complianceChecks = []
+      this.complianceProfiles = []
+      return
+    }
 
+    // Client-side: Load from localStorage
     const storedChecks = localStorage.getItem('compliance_checks')
     const storedProfiles = localStorage.getItem('compliance_profiles')
     

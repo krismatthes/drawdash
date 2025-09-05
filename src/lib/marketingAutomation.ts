@@ -554,15 +554,26 @@ class MarketingAutomationService {
 
   // Storage helpers
   private loadRules(): void {
+    if (typeof window === 'undefined') {
+      // Server-side: Initialize with empty data
+      this.rules = []
+      return
+    }
+    
+    // Client-side: Load from localStorage
     const stored = localStorage.getItem('automation_rules')
     this.rules = stored ? JSON.parse(stored) : []
   }
 
   private saveRules(): void {
+    if (typeof window === 'undefined') return
+    
     localStorage.setItem('automation_rules', JSON.stringify(this.rules))
   }
 
   private saveExecutions(): void {
+    if (typeof window === 'undefined') return
+    
     localStorage.setItem('automation_executions', JSON.stringify(this.executions))
   }
 }

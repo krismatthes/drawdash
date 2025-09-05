@@ -465,6 +465,14 @@ class EventTrackingService {
 
   // Storage helpers
   private loadStoredData(): void {
+    if (typeof window === 'undefined') {
+      // Server-side: Initialize with empty data
+      this.events = []
+      this.sessions = []
+      return
+    }
+    
+    // Client-side: Load from localStorage
     const storedEvents = localStorage.getItem('tracking_events')
     const storedSessions = localStorage.getItem('tracking_sessions')
     
@@ -477,6 +485,8 @@ class EventTrackingService {
   }
 
   private saveEvents(): void {
+    if (typeof window === 'undefined') return
+    
     // Keep only last 5000 events to prevent localStorage overflow
     if (this.events.length > 5000) {
       this.events = this.events.slice(-5000)
@@ -485,6 +495,8 @@ class EventTrackingService {
   }
 
   private saveSessions(): void {
+    if (typeof window === 'undefined') return
+    
     localStorage.setItem('tracking_sessions', JSON.stringify(this.sessions))
   }
 

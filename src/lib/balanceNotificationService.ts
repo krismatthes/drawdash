@@ -257,8 +257,13 @@ class BalanceNotificationService {
 
   // Storage helpers
   private loadStoredData(): void {
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined') {
+      // Server-side: Initialize with empty data
+      this.notifications = []
+      return
+    }
 
+    // Client-side: Load from localStorage
     const storedNotifications = localStorage.getItem('balance_notifications')
     this.notifications = storedNotifications ? JSON.parse(storedNotifications) : []
   }

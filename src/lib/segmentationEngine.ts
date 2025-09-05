@@ -451,11 +451,20 @@ class SegmentationEngine {
 
   // Storage helpers
   private loadSegments(): void {
+    if (typeof window === 'undefined') {
+      // Server-side: Initialize with default segments
+      this.segments = this.getDefaultSegments()
+      return
+    }
+    
+    // Client-side: Load from localStorage
     const stored = localStorage.getItem('crm_segments')
     this.segments = stored ? JSON.parse(stored) : this.getDefaultSegments()
   }
 
   private saveSegments(): void {
+    if (typeof window === 'undefined') return
+    
     localStorage.setItem('crm_segments', JSON.stringify(this.segments))
   }
 

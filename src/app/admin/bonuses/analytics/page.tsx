@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { bonusRewardService, BonusReward, type BonusAnalytics } from '@/lib/bonusRewardService'
 
-export default function BonusAnalyticsPage() {
+function BonusAnalyticsContent() {
   const { user, isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -536,5 +536,13 @@ export default function BonusAnalyticsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function BonusAnalyticsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BonusAnalyticsContent />
+    </Suspense>
   )
 }

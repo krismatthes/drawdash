@@ -557,8 +557,14 @@ class BalanceService {
 
   // Storage helpers
   private loadStoredData(): void {
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined') {
+      // Server-side: Initialize with empty data
+      this.balances = []
+      this.transactions = []
+      return
+    }
 
+    // Client-side: Load from localStorage
     const storedBalances = localStorage.getItem('user_balances')
     const storedTransactions = localStorage.getItem('balance_transactions')
 

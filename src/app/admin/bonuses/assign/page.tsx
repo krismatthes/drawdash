@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { bonusRewardService, BonusReward, UserBonus } from '@/lib/bonusRewardService'
 
-export default function AssignBonus() {
+function AssignBonusContent() {
   const { user, isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -572,5 +572,13 @@ export default function AssignBonus() {
         </motion.div>
       </div>
     </div>
+  )
+}
+
+export default function AssignBonus() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AssignBonusContent />
+    </Suspense>
   )
 }
