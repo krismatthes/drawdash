@@ -18,8 +18,7 @@ import MobileFloatingButton from '@/components/MobileFloatingButton'
 import PointsCalculationDisplay from '@/components/PointsCalculationDisplay'
 import InstantWinReveal from '@/components/InstantWinReveal'
 import SuccessModal from '@/components/SuccessModal'
-import { mockRaffles } from '@/lib/mockData'
-import { Raffle } from '@/types/raffle'
+import { raffleServiceDB } from '@/lib/raffleServiceDB'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LoyaltyCalculator } from '@/lib/loyalty'
@@ -29,7 +28,8 @@ import { InstantWinService, InstantWinResult } from '@/lib/instantWinService'
 export default function ClientRafflePage() {
   const params = useParams()
   const router = useRouter()
-  const [raffle, setRaffle] = useState<Raffle | null>(null)
+  const [raffle, setRaffle] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const [ticketQuantity, setTicketQuantity] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
@@ -41,8 +41,21 @@ export default function ClientRafflePage() {
   const { t } = useLanguage()
 
   useEffect(() => {
-    const raffleData = mockRaffles.find(r => r.id === params.id)
-    setRaffle(raffleData || null)
+    const loadRaffle = async () => {
+      try {
+        const raffleData = await raffleServiceDB.getRaffleById(params.id as string)
+        setRaffle(raffleData)
+      } catch (error) {
+        console.error('Failed to load raffle:', error)
+        setRaffle(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (params.id) {
+      loadRaffle()
+    }
   }, [params.id])
 
   const handlePurchase = () => {
@@ -127,6 +140,21 @@ export default function ClientRafflePage() {
     setInstantWinResult(null)
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen relative">
+        <GradientMesh variant="hero" />
+        <PremiumHeader />
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-slate-600">Indlæser lodtrækning...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (!raffle) {
     return (
       <div className="min-h-screen relative">
@@ -134,8 +162,8 @@ export default function ClientRafflePage() {
         <PremiumHeader />
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">Raffle Not Found</h1>
-            <p className="text-gray-600 mt-2">The raffle you're looking for doesn't exist.</p>
+            <h1 className="text-2xl font-bold text-gray-900">Lodtrækning ikke fundet</h1>
+            <p className="text-gray-600 mt-2">Lodtrækningen du leder efter eksisterer ikke.</p>
           </div>
         </div>
       </div>
@@ -143,7 +171,7 @@ export default function ClientRafflePage() {
   }
 
   const progressPercentage = (raffle.soldTickets / raffle.totalTickets) * 100
-  const totalCost = ticketQuantity * raffle.ticketPrice
+  const totalCost = ticketQuantity * (raffle?.ticketPrice || 0)
   
   // Calculate points that would be earned
   const pointsCalculation = user ? LoyaltyCalculator.calculatePointsEarned(
@@ -163,7 +191,7 @@ export default function ClientRafflePage() {
           {/* Background Image with Premium Effects */}
           <div className="absolute inset-0">
             <Image
-              src={raffle.image}
+              src={raffle.imageUrl || '/placeholder-raffle.jpg'}
               alt={raffle.title}
               fill
               className="object-cover object-center"
@@ -243,7 +271,9 @@ export default function ClientRafflePage() {
                       TOTAL VÆRDI
                     </div>
                     <div className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300">
-                      {raffle.prize.value.toLocaleString('da-DK')} kr
+                      {raffle.prizes && raffle.prizes.length > 0 
+                        ? Math.max(...raffle.prizes.map((p: any) => p.value)).toLocaleString('da-DK')
+                        : '0'} kr
                     </div>
                   </div>
                 </motion.div>
@@ -326,26 +356,38 @@ export default function ClientRafflePage() {
               >
                 <h2 className="text-xl font-semibold text-slate-900 mb-6">Præmiedetaljer</h2>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4">
-                    <div className="text-sm text-slate-600 mb-1">Præmie</div>
-                    <div className="font-semibold text-slate-900">{raffle.prize.name}</div>
+                {raffle.prizes && raffle.prizes.length > 0 && (
+                  <div className="space-y-4 mb-6">
+                    {raffle.prizes.map((prize: any, index: number) => (
+                      <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4">
+                          <div className="text-sm text-slate-600 mb-1">Præmie {index + 1}</div>
+                          <div className="font-semibold text-slate-900">{prize.name}</div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4">
+                          <div className="text-sm text-slate-600 mb-1">Værdi</div>
+                          <div className="font-bold text-2xl text-gradient">
+                            <SmoothCounter 
+                              value={prize.value} 
+                              format="currency"
+                              currency="DKK"
+                            />
+                          </div>
+                        </div>
+                        
+                        {prize.description && (
+                          <div className="col-span-2 prose prose-slate max-w-none">
+                            <p className="text-slate-700 leading-relaxed">{prize.description}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                  
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4">
-                    <div className="text-sm text-slate-600 mb-1">Værdi</div>
-                    <div className="font-bold text-2xl text-gradient">
-                      <SmoothCounter 
-                        value={raffle.prize.value} 
-                        format="currency"
-                        currency="DKK"
-                      />
-                    </div>
-                  </div>
-                </div>
+                )}
                 
                 <div className="prose prose-slate max-w-none">
-                  <p className="text-slate-700 leading-relaxed">{raffle.prize.description}</p>
+                  <p className="text-slate-700 leading-relaxed">{raffle.description}</p>
                 </div>
               </motion.div>
 
@@ -450,10 +492,14 @@ export default function ClientRafflePage() {
                       🎯 Deltag i lodtrækningen
                     </div>
                     <div className="text-2xl font-black text-slate-900">
-                      Værdi: <span className="text-green-600">{raffle.prize.value.toLocaleString('da-DK')} kr</span>
+                      Værdi: <span className="text-green-600">
+                        {raffle.prizes && raffle.prizes.length > 0 
+                          ? Math.max(...raffle.prizes.map((p: any) => p.value)).toLocaleString('da-DK')
+                          : '0'} kr
+                      </span>
                     </div>
                     <div className="text-sm text-slate-600 mt-2">
-                      Billetpris: kun {raffle.ticketPrice} kr pr. billet
+                      Billetpris: kun {raffle.ticketPrice?.toLocaleString('da-DK')} kr pr. billet
                     </div>
                   </div>
                   
@@ -516,7 +562,7 @@ export default function ClientRafflePage() {
                     <div className="bg-white rounded-xl p-4 border border-slate-200 text-center">
                       <div className="text-sm font-bold text-slate-600 mb-2">💰 PRIS</div>
                       <div className="text-xl font-bold text-slate-900">
-                        {(ticketQuantity * raffle.ticketPrice).toLocaleString('da-DK')} kr
+                        {(ticketQuantity * (raffle.ticketPrice || 0)).toLocaleString('da-DK')} kr
                       </div>
                     </div>
                   </div>

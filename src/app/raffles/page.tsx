@@ -1,31 +1,52 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import PremiumHeader from '@/components/PremiumHeader'
 import PremiumFooter from '@/components/PremiumFooter'
 import PremiumRaffleCard from '@/components/PremiumRaffleCard'
 import GradientMesh from '@/components/GradientMesh'
-import { mockRaffles } from '@/lib/mockData'
+import { raffleServiceDB } from '@/lib/raffleServiceDB'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function RafflesPage() {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'upcoming' | 'ended'>('all')
   const [sortBy, setSortBy] = useState<'prize' | 'tickets' | 'ending'>('prize')
+  const [raffles, setRaffles] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const { t } = useLanguage()
 
-  const activeRaffles = mockRaffles.filter(raffle => raffle.status === 'active')
-  const upcomingRaffles = mockRaffles.filter(raffle => raffle.status === 'upcoming')
-  const endedRaffles = mockRaffles.filter(raffle => raffle.status === 'ended')
+  useEffect(() => {
+    const loadRaffles = async () => {
+      try {
+        const allRaffles = await raffleServiceDB.getAllRaffles()
+        setRaffles(allRaffles)
+      } catch (error) {
+        console.error('Failed to load raffles:', error)
+        setRaffles([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadRaffles()
+  }, [])
+
+  const activeRaffles = raffles.filter(raffle => raffle.status === 'active')
+  const upcomingRaffles = raffles.filter(raffle => raffle.status === 'upcoming')
+  const endedRaffles = raffles.filter(raffle => raffle.status === 'ended')
 
   const filteredRaffles = selectedFilter === 'all' 
-    ? mockRaffles 
-    : mockRaffles.filter(raffle => raffle.status === selectedFilter)
+    ? raffles 
+    : raffles.filter(raffle => raffle.status === selectedFilter)
 
   const sortedRaffles = [...filteredRaffles].sort((a, b) => {
     switch (sortBy) {
       case 'prize':
-        return b.prize.value - a.prize.value
+        // Sort by highest prize value from prizes array
+        const aMaxValue = Math.max(...a.prizes.map((p: any) => p.value))
+        const bMaxValue = Math.max(...b.prizes.map((p: any) => p.value))
+        return bMaxValue - aMaxValue
       case 'tickets':
         return (b.soldTickets / b.totalTickets) - (a.soldTickets / a.totalTickets)
       case 'ending':
@@ -61,7 +82,7 @@ export default function RafflesPage() {
                 {/* Filter Buttons */}
                 <div className="flex flex-wrap gap-2">
                   {[
-                    { key: 'all', label: 'Alle', count: mockRaffles.length },
+                    { key: 'all', label: 'Alle', count: raffles.length },
                     { key: 'active', label: 'Aktive', count: activeRaffles.length },
                     { key: 'upcoming', label: 'Kommende', count: upcomingRaffles.length },
                     { key: 'ended', label: 'Afsluttet', count: endedRaffles.length }
@@ -113,7 +134,12 @@ export default function RafflesPage() {
 
         {/* Raffles Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-          {sortedRaffles.length > 0 ? (
+          {loading ? (
+            <div className="text-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+              <p className="mt-4 text-slate-600">Indlæser lodtrækninger...</p>
+            </div>
+          ) : sortedRaffles.length > 0 ? (
             <motion.div
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 auto-rows-fr"
               initial={{ opacity: 0 }}
@@ -148,7 +174,9 @@ export default function RafflesPage() {
                   Ingen lodtrækninger fundet
                 </h3>
                 <p className="text-slate-600 leading-relaxed">
-                  Der er ingen lodtrækninger, der matcher dine filtre. Prøv at ændre dine søgekriterier.
+                  {raffles.length === 0 
+                    ? 'Der er ingen lodtrækninger tilgængelige lige nu. Kom tilbage senere!'
+                    : 'Der er ingen lodtrækninger, der matcher dine filtre. Prøv at ændre dine søgekriterier.'}
                 </p>
               </div>
             </motion.div>

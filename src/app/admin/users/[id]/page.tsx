@@ -5,10 +5,9 @@ import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { userManagementService, AdminUser, UserAction, FreeTicketGrant } from '@/lib/userManagementService'
+import { userService } from '@/lib/userService'
+import { raffleServiceDB } from '@/lib/raffleServiceDB'
 import { antiFraud } from '@/lib/antiFraud'
-import { raffleService } from '@/lib/raffleService'
-import { paymentHistoryService, PaymentRecord, PaymentSummary } from '@/lib/paymentHistoryService'
 
 // Edit User Modal Component
 interface EditUserModalProps {
@@ -289,14 +288,12 @@ export default function UserDetail() {
   const params = useParams()
   const userId = params.id as string
 
-  const [user, setUser] = useState<AdminUser | null>(null)
-  const [userActions, setUserActions] = useState<UserAction[]>([])
-  const [freeTickets, setFreeTickets] = useState<FreeTicketGrant[]>([])
-  const [paymentHistory, setPaymentHistory] = useState<PaymentRecord[]>([])
-  const [paymentSummary, setPaymentSummary] = useState<PaymentSummary | null>(null)
+  const [user, setUser] = useState<any>(null)
+  const [userEntries, setUserEntries] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [editModalOpen, setEditModalOpen] = useState(false)
-  const [ticketModalOpen, setTicketModalOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<'overview' | 'activity' | 'preferences' | 'transactions'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'draws' | 'points' | 'activity'>('overview')
+  const [drawsFilter, setDrawsFilter] = useState<'all' | 'active' | 'completed'>('all')
 
   // Redirect if not admin
   useEffect(() => {
@@ -314,98 +311,50 @@ export default function UserDetail() {
 
   // Load user data
   useEffect(() => {
-    if (userId) {
-      const userData = userManagementService.getUserById(userId)
-      if (userData) {
-        setUser(userData)
-        const actions = userManagementService.getUserActions(userId)
-        setUserActions(actions)
-        const tickets = userManagementService.getUserFreeTickets(userId)
-        setFreeTickets(tickets)
-        const payments = paymentHistoryService.getUserPaymentHistory(userId)
-        setPaymentHistory(payments)
-        const summary = paymentHistoryService.getUserPaymentSummary(userId)
-        setPaymentSummary(summary)
-      } else {
+    const loadUserData = async () => {
+      if (!userId) return
+      
+      try {
+        // Get user data
+        const userData = await userService.getUserById(userId)
+        if (userData) {
+          setUser(userData)
+          
+          // Get user's raffle entries
+          const entries = await raffleServiceDB.getUserRaffleEntries(userId)
+          setUserEntries(entries)
+        } else {
+          router.push('/admin/users')
+        }
+      } catch (error) {
+        console.error('Failed to load user data:', error)
         router.push('/admin/users')
+      } finally {
+        setLoading(false)
       }
     }
-  }, [userId, router])
 
-  const handleSaveUser = (updates: Partial<AdminUser>) => {
+    if (currentUser?.isAdmin) {
+      loadUserData()
+    }
+  }, [userId, router, currentUser?.isAdmin])
+
+  const handleSaveUser = async (updates: any) => {
     if (user) {
-      const success = userManagementService.updateUser(
-        user.id,
-        updates,
-        currentUser?.email || 'admin@drawdash.dk'
-      )
-      
-      if (success) {
-        const updatedUser = userManagementService.getUserById(user.id)
+      try {
+        await userService.updateUser(user.id, updates)
+        const updatedUser = await userService.getUserById(user.id)
         if (updatedUser) {
           setUser(updatedUser)
-          // Refresh actions
-          const actions = userManagementService.getUserActions(userId)
-          setUserActions(actions)
         }
-      }
-    }
-  }
-
-  const handleGrantTickets = (raffleId: string, quantity: number, reason: string) => {
-    if (user) {
-      const grant = userManagementService.grantFreeTickets(
-        user.id,
-        raffleId,
-        quantity,
-        reason,
-        currentUser?.email || 'admin@drawdash.dk'
-      )
-      
-      if (grant) {
-        // Refresh data
-        const tickets = userManagementService.getUserFreeTickets(userId)
-        setFreeTickets(tickets)
-        const actions = userManagementService.getUserActions(userId)
-        setUserActions(actions)
-      }
-    }
-  }
-
-  const handleBlockUser = () => {
-    if (user && !user.isBlocked) {
-      const reason = prompt('Grund til blokering:')
-      if (reason) {
-        const success = userManagementService.blockUser(
-          user.id,
-          reason,
-          currentUser?.email || 'admin@drawdash.dk'
-        )
-        
-        if (success) {
-          const updatedUser = userManagementService.getUserById(user.id)
-          if (updatedUser) setUser(updatedUser)
-        }
-      }
-    }
-  }
-
-  const handleUnblockUser = () => {
-    if (user && user.isBlocked) {
-      const success = userManagementService.unblockUser(
-        user.id,
-        currentUser?.email || 'admin@drawdash.dk'
-      )
-      
-      if (success) {
-        const updatedUser = userManagementService.getUserById(user.id)
-        if (updatedUser) setUser(updatedUser)
+      } catch (error) {
+        console.error('Failed to update user:', error)
       }
     }
   }
 
   // Show loading
-  if (isLoading || !user) {
+  if (isLoading || loading || !user) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
@@ -421,53 +370,22 @@ export default function UserDetail() {
     return null
   }
 
-  const getRiskBadge = (riskScore?: number) => {
-    if (!riskScore) return null
-    
-    if (riskScore > 70) {
-      return <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Høj Risiko</span>
-    } else if (riskScore > 40) {
-      return <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Medium Risiko</span>
-    } else {
-      return <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Lav Risiko</span>
+  // Filter user entries based on status
+  const getFilteredEntries = () => {
+    if (drawsFilter === 'active') {
+      return userEntries.filter(entry => entry.raffle.status === 'active')
+    } else if (drawsFilter === 'completed') {
+      return userEntries.filter(entry => entry.raffle.status === 'ended' || entry.raffle.status === 'completed')
     }
+    return userEntries
   }
 
-  const getDrawPreferenceChart = () => {
-    const { drawPreferences } = user
-    const total = Object.values(drawPreferences).reduce((sum, val) => sum + val, 0)
-    
-    if (total === 0) return null
-
-    return (
-      <div className="space-y-2">
-        {Object.entries(drawPreferences).map(([key, value]) => {
-          const percentage = (value / total) * 100
-          const labels: Record<string, string> = {
-            highValue: 'Høj værdi',
-            cashPrizes: 'Kontanter',
-            electronics: 'Elektronik',
-            experiences: 'Oplevelser',
-            cars: 'Biler',
-            lifestyle: 'Livsstil'
-          }
-          
-          return (
-            <div key={key} className="flex items-center">
-              <div className="w-24 text-sm text-slate-600">{labels[key]}</div>
-              <div className="flex-1 bg-slate-200 rounded-full h-2 mr-3">
-                <div
-                  className="bg-blue-500 h-2 rounded-full"
-                  style={{ width: `${percentage}%` }}
-                />
-              </div>
-              <div className="w-12 text-xs text-slate-500">{value}</div>
-            </div>
-          )
-        })}
-      </div>
-    )
-  }
+  const filteredEntries = getFilteredEntries()
+  
+  // Sort entries chronologically (newest first)
+  const sortedEntries = [...filteredEntries].sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  )
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -648,9 +566,9 @@ export default function UserDetail() {
                 <nav className="flex space-x-8 px-6">
                   {[
                     { id: 'overview', label: 'Oversigt' },
-                    { id: 'activity', label: 'Aktivitetslog' },
-                    { id: 'preferences', label: 'Præferencer' },
-                    { id: 'transactions', label: 'Transaktioner' }
+                    { id: 'draws', label: `Lodtrækninger (${userEntries.length})` },
+                    { id: 'points', label: 'Points & Loyalty' },
+                    { id: 'activity', label: 'Aktivitetslog' }
                   ].map((tab) => (
                     <button
                       key={tab.id}
@@ -674,22 +592,24 @@ export default function UserDetail() {
                     <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="bg-slate-50 rounded-lg p-4">
                         <div className="text-sm text-slate-600 mb-1">Total Forbrug</div>
-                        <div className="text-2xl font-bold text-slate-900">{user.totalSpent.toLocaleString()} kr</div>
+                        <div className="text-2xl font-bold text-slate-900">{user.totalSpent?.toLocaleString('da-DK') || '0'} kr</div>
                       </div>
                       
                       <div className="bg-slate-50 rounded-lg p-4">
-                        <div className="text-sm text-slate-600 mb-1">Total Gevinster</div>
-                        <div className="text-2xl font-bold text-green-600">{user.totalWinnings.toLocaleString()} kr</div>
+                        <div className="text-sm text-slate-600 mb-1">Loyalty Points</div>
+                        <div className="text-2xl font-bold text-purple-600">{user.points?.toLocaleString('da-DK') || '0'}</div>
                       </div>
                       
                       <div className="bg-slate-50 rounded-lg p-4">
-                        <div className="text-sm text-slate-600 mb-1">Billetter Købt</div>
-                        <div className="text-2xl font-bold text-slate-900">{user.totalTickets}</div>
+                        <div className="text-sm text-slate-600 mb-1">Deltagelser</div>
+                        <div className="text-2xl font-bold text-slate-900">{userEntries.length}</div>
                       </div>
                       
                       <div className="bg-slate-50 rounded-lg p-4">
-                        <div className="text-sm text-slate-600 mb-1">Loyalitet Point</div>
-                        <div className="text-2xl font-bold text-purple-600">{user.loyaltyPoints}</div>
+                        <div className="text-sm text-slate-600 mb-1">Total Billetter</div>
+                        <div className="text-2xl font-bold text-blue-600">
+                          {userEntries.reduce((sum, entry) => sum + entry.quantity, 0)}
+                        </div>
                       </div>
                     </div>
                     
@@ -699,31 +619,232 @@ export default function UserDetail() {
                       <div className="space-y-2 text-sm">
                         <div>
                           <span className="text-slate-600">Registreret:</span>
-                          <div>{user.registeredAt.toLocaleDateString('da-DK')}</div>
+                          <div>{new Date(user.createdAt).toLocaleDateString('da-DK')}</div>
                         </div>
                         <div>
-                          <span className="text-slate-600">Sidst aktiv:</span>
-                          <div>{user.lastActivity.toLocaleDateString('da-DK')}</div>
+                          <span className="text-slate-600">Loyalty Tier:</span>
+                          <div className="capitalize">{user.loyaltyTier}</div>
                         </div>
-                        {user.address && (
-                          <div>
-                            <span className="text-slate-600">Adresse:</span>
-                            <div>{user.address}</div>
-                            {user.city && user.postalCode && (
-                              <div>{user.postalCode} {user.city}</div>
-                            )}
-                          </div>
-                        )}
                         <div>
-                          <span className="text-slate-600">CRM Segment:</span>
-                          <div className="capitalize">{user.crmSegment.replace('_', ' ')}</div>
+                          <span className="text-slate-600">Verificeret:</span>
+                          <div>{user.isVerified ? 'Ja' : 'Nej'}</div>
                         </div>
-                        {user.riskScore !== undefined && (
+                        <div>
+                          <span className="text-slate-600">Admin:</span>
+                          <div>{user.isAdmin ? 'Ja' : 'Nej'}</div>
+                        </div>
+                        {user.phone && (
                           <div>
-                            <span className="text-slate-600">Risiko Score:</span>
-                            <div>{user.riskScore}/100</div>
+                            <span className="text-slate-600">Telefon:</span>
+                            <div>{user.phone}</div>
                           </div>
                         )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'draws' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-slate-900">Lodtræknings Deltagelser</h3>
+                      
+                      {/* Filter buttons */}
+                      <div className="flex rounded-lg bg-slate-100 p-1">
+                        {[
+                          { key: 'all', label: `Alle (${userEntries.length})` },
+                          { key: 'active', label: `Aktive (${userEntries.filter(e => e.raffle.status === 'active').length})` },
+                          { key: 'completed', label: `Afsluttede (${userEntries.filter(e => e.raffle.status === 'ended' || e.raffle.status === 'completed').length})` }
+                        ].map((filter) => (
+                          <button
+                            key={filter.key}
+                            onClick={() => setDrawsFilter(filter.key as any)}
+                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                              drawsFilter === filter.key
+                                ? 'bg-white text-blue-600 shadow-sm'
+                                : 'text-slate-600 hover:text-slate-900'
+                            }`}
+                          >
+                            {filter.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Entries list */}
+                    <div className="space-y-4">
+                      {sortedEntries.length === 0 ? (
+                        <div className="text-center py-12 text-slate-500">
+                          <div className="text-6xl mb-4">🎫</div>
+                          <h4 className="text-lg font-medium text-slate-900 mb-2">
+                            {drawsFilter === 'all' ? 'Ingen deltagelser endnu' : 
+                             drawsFilter === 'active' ? 'Ingen aktive deltagelser' :
+                             'Ingen afsluttede deltagelser'}
+                          </h4>
+                          <p className="text-slate-600">
+                            {drawsFilter === 'all' ? 'Denne bruger har ikke deltaget i nogen lodtrækninger endnu' :
+                             drawsFilter === 'active' ? 'Brugeren deltager ikke i nogen aktive lodtrækninger' :
+                             'Brugeren har ingen afsluttede deltagelser'}
+                          </p>
+                        </div>
+                      ) : (
+                        sortedEntries.map((entry) => (
+                          <div key={entry.id} className="bg-white border border-slate-200 rounded-lg p-6">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <h4 className="text-lg font-semibold text-slate-900">
+                                    {entry.raffle.title}
+                                  </h4>
+                                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                    entry.raffle.status === 'active' 
+                                      ? 'bg-green-100 text-green-700'
+                                      : entry.raffle.status === 'ended'
+                                      ? 'bg-gray-100 text-gray-700'
+                                      : entry.raffle.status === 'upcoming'
+                                      ? 'bg-blue-100 text-blue-700'
+                                      : 'bg-red-100 text-red-700'
+                                  }`}>
+                                    {entry.raffle.status === 'active' ? 'Aktiv' :
+                                     entry.raffle.status === 'ended' ? 'Afsluttet' :
+                                     entry.raffle.status === 'upcoming' ? 'Kommende' : 'Ukendt'}
+                                  </span>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                                  <div>
+                                    <div className="text-sm text-slate-600">Billetter købt</div>
+                                    <div className="font-semibold text-slate-900">{entry.quantity}</div>
+                                  </div>
+                                  <div>
+                                    <div className="text-sm text-slate-600">Beløb</div>
+                                    <div className="font-semibold text-slate-900">
+                                      {entry.totalAmount.toLocaleString('da-DK')} kr
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="text-sm text-slate-600">Billetnumre</div>
+                                    <div className="font-semibold text-slate-900">
+                                      {entry.ticketNumbers.join(', ')}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="text-sm text-slate-600">Status</div>
+                                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                                      entry.paymentStatus === 'completed' 
+                                        ? 'bg-green-100 text-green-700'
+                                        : entry.paymentStatus === 'pending'
+                                        ? 'bg-yellow-100 text-yellow-700'
+                                        : 'bg-red-100 text-red-700'
+                                    }`}>
+                                      {entry.paymentStatus === 'completed' ? 'Betalt' : 
+                                       entry.paymentStatus === 'pending' ? 'Afventer' : 'Fejlet'}
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+                                  <div className="text-sm text-slate-500">
+                                    Deltaget: {new Date(entry.createdAt).toLocaleDateString('da-DK')} kl. {new Date(entry.createdAt).toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' })}
+                                  </div>
+                                  <div className="text-sm text-slate-500">
+                                    Lodtrækning slutter: {new Date(entry.raffle.endDate).toLocaleDateString('da-DK')}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'points' && (
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-semibold text-slate-900">Points & Loyalty System</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6">
+                        <div className="text-sm text-purple-600 mb-2">Aktuelle Points</div>
+                        <div className="text-3xl font-bold text-purple-900">{user.points?.toLocaleString('da-DK') || '0'}</div>
+                        <div className="text-sm text-purple-700 mt-1">
+                          ≈ {Math.round((user.points || 0) / 200)} kr værdi
+                        </div>
+                      </div>
+                      
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6">
+                        <div className="text-sm text-blue-600 mb-2">Loyalty Tier</div>
+                        <div className="text-2xl font-bold text-blue-900 capitalize">{user.loyaltyTier || 'bronze'}</div>
+                        <div className="text-sm text-blue-700 mt-1">
+                          Baseret på {user.totalSpent?.toLocaleString('da-DK') || '0'} kr forbrug
+                        </div>
+                      </div>
+                      
+                      <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6">
+                        <div className="text-sm text-green-600 mb-2">Point Rate</div>
+                        <div className="text-2xl font-bold text-green-900">
+                          {user.loyaltyTier === 'diamond' ? '1.5x' :
+                           user.loyaltyTier === 'gold' ? '1.3x' :
+                           user.loyaltyTier === 'silver' ? '1.15x' : '1.0x'}
+                        </div>
+                        <div className="text-sm text-green-700 mt-1">
+                          Points multiplikator
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Loyalty Tiers Progress */}
+                    <div className="bg-white border border-slate-200 rounded-lg p-6">
+                      <h4 className="font-semibold text-slate-900 mb-4">Loyalty Tiers</h4>
+                      <div className="space-y-4">
+                        {[
+                          { tier: 'bronze', name: 'Bronze', min: 0, multiplier: '1.0x', color: 'from-amber-400 to-orange-500' },
+                          { tier: 'silver', name: 'Silver', min: 500, multiplier: '1.15x', color: 'from-gray-400 to-gray-500' },
+                          { tier: 'gold', name: 'Gold', min: 2000, multiplier: '1.3x', color: 'from-yellow-400 to-yellow-500' },
+                          { tier: 'diamond', name: 'Diamond', min: 10000, multiplier: '1.5x', color: 'from-emerald-400 to-teal-500' }
+                        ].map((tier) => {
+                          const isCurrentTier = user.loyaltyTier === tier.tier
+                          const hasReached = (user.totalSpent || 0) >= tier.min
+                          
+                          return (
+                            <div
+                              key={tier.tier}
+                              className={`flex items-center justify-between p-4 rounded-lg border-2 ${
+                                isCurrentTier 
+                                  ? 'border-blue-300 bg-blue-50' 
+                                  : hasReached
+                                  ? 'border-green-300 bg-green-50'
+                                  : 'border-slate-200 bg-slate-50'
+                              }`}
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className={`w-12 h-12 bg-gradient-to-r ${tier.color} rounded-full flex items-center justify-center`}>
+                                  <span className="text-white font-bold">
+                                    {tier.tier === 'bronze' ? '🥉' :
+                                     tier.tier === 'silver' ? '🥈' :
+                                     tier.tier === 'gold' ? '🥇' : '💎'}
+                                  </span>
+                                </div>
+                                <div>
+                                  <div className="font-semibold text-slate-900">{tier.name}</div>
+                                  <div className="text-sm text-slate-600">
+                                    Fra {tier.min.toLocaleString('da-DK')} kr forbrug
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="text-right">
+                                <div className="font-semibold text-slate-900">{tier.multiplier}</div>
+                                {isCurrentTier && (
+                                  <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded-full">
+                                    Nuværende
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
                   </div>
@@ -734,172 +855,27 @@ export default function UserDetail() {
                     <h3 className="text-lg font-semibold text-slate-900">Aktivitetslog</h3>
                     
                     <div className="space-y-3">
-                      {userActions.map((action) => (
-                        <div key={action.id} className="flex items-start gap-4 p-4 bg-slate-50 rounded-lg">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-sm font-medium text-slate-900">{action.details}</div>
-                            <div className="text-xs text-slate-500 mt-1">
-                              {action.performedAt.toLocaleDateString('da-DK')} kl. {action.performedAt.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' })} af {action.performedBy}
+                      {userEntries.length > 0 ? (
+                        userEntries.slice(0, 10).map((entry) => (
+                          <div key={entry.id} className="flex items-start gap-4 p-4 bg-slate-50 rounded-lg">
+                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                              <span className="text-blue-600">🎫</span>
+                            </div>
+                            <div className="flex-1">
+                              <div className="text-sm font-medium text-slate-900">
+                                Deltog i "{entry.raffle.title}" med {entry.quantity} billetter
+                              </div>
+                              <div className="text-xs text-slate-500 mt-1">
+                                {new Date(entry.createdAt).toLocaleDateString('da-DK')} kl. {new Date(entry.createdAt).toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' })} • {entry.totalAmount.toLocaleString('da-DK')} kr
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                      
-                      {userActions.length === 0 && (
+                        ))
+                      ) : (
                         <div className="text-center py-8 text-slate-500">
                           Ingen aktivitet endnu
                         </div>
                       )}
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'preferences' && (
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-semibold text-slate-900">Lodtræknings Præferencer</h3>
-                    
-                    <div className="bg-slate-50 rounded-lg p-6">
-                      <h4 className="font-medium text-slate-900 mb-4">Deltagelsesmønstre</h4>
-                      {getDrawPreferenceChart()}
-                    </div>
-                    
-                    {freeTickets.length > 0 && (
-                      <div>
-                        <h4 className="font-medium text-slate-900 mb-4">Gratis Billetter</h4>
-                        <div className="space-y-3">
-                          {freeTickets.map((grant) => (
-                            <div key={grant.id} className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
-                              <div>
-                                <div className="font-medium text-green-900">
-                                  {grant.ticketQuantity} billetter til lodtrækning {grant.raffleId}
-                                </div>
-                                <div className="text-sm text-green-700">
-                                  Grund: {grant.reason}
-                                </div>
-                                <div className="text-xs text-green-600 mt-1">
-                                  Tildelt {grant.grantedAt.toLocaleDateString('da-DK')} af {grant.grantedBy}
-                                </div>
-                              </div>
-                              <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                                grant.status === 'active' 
-                                  ? 'bg-green-100 text-green-800'
-                                  : grant.status === 'used'
-                                  ? 'bg-gray-100 text-gray-800'
-                                  : 'bg-red-100 text-red-800'
-                              }`}>
-                                {grant.status === 'active' ? 'Aktiv' : grant.status === 'used' ? 'Brugt' : 'Udløbet'}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {activeTab === 'transactions' && (
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-semibold text-slate-900">Transaktionshistorik</h3>
-                    
-                    {/* Payment Summary */}
-                    {paymentSummary && (
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="bg-green-50 rounded-lg p-4">
-                          <div className="text-sm text-green-600 mb-1">Indskud</div>
-                          <div className="text-xl font-bold text-green-800">{paymentSummary.totalDeposits.toLocaleString()} kr</div>
-                        </div>
-                        <div className="bg-red-50 rounded-lg p-4">
-                          <div className="text-sm text-red-600 mb-1">Udbetalinger</div>
-                          <div className="text-xl font-bold text-red-800">{paymentSummary.totalWithdrawals.toLocaleString()} kr</div>
-                        </div>
-                        <div className="bg-blue-50 rounded-lg p-4">
-                          <div className="text-sm text-blue-600 mb-1">Køb</div>
-                          <div className="text-xl font-bold text-blue-800">{paymentSummary.totalPurchases.toLocaleString()} kr</div>
-                        </div>
-                        <div className="bg-purple-50 rounded-lg p-4">
-                          <div className="text-sm text-purple-600 mb-1">Net Saldo</div>
-                          <div className={`text-xl font-bold ${paymentSummary.netBalance >= 0 ? 'text-green-800' : 'text-red-800'}`}>
-                            {paymentSummary.netBalance.toLocaleString()} kr
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Transaction List */}
-                    <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
-                      <div className="px-6 py-4 border-b border-slate-200">
-                        <h4 className="font-medium text-slate-900">Alle Transaktioner</h4>
-                      </div>
-                      
-                      <div className="divide-y divide-slate-200">
-                        {paymentHistory.slice(0, 20).map((payment) => (
-                          <div key={payment.id} className="px-6 py-4 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                payment.type === 'deposit' ? 'bg-green-100' :
-                                payment.type === 'withdrawal' || payment.type === 'payout' ? 'bg-red-100' :
-                                payment.type === 'purchase' ? 'bg-blue-100' :
-                                'bg-gray-100'
-                              }`}>
-                                {payment.type === 'deposit' && <span className="text-green-600">↓</span>}
-                                {(payment.type === 'withdrawal' || payment.type === 'payout') && <span className="text-red-600">↑</span>}
-                                {payment.type === 'purchase' && <span className="text-blue-600">💳</span>}
-                                {payment.type === 'refund' && <span className="text-gray-600">↩</span>}
-                              </div>
-                              
-                              <div>
-                                <div className="font-medium text-slate-900">{payment.description}</div>
-                                <div className="text-sm text-slate-500">
-                                  {payment.timestamp.toLocaleDateString('da-DK')} • {payment.paymentMethod}
-                                  {payment.metadata.cardLast4 && ` ****${payment.metadata.cardLast4}`}
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div className="text-right">
-                              <div className={`font-medium ${
-                                payment.type === 'deposit' ? 'text-green-600' :
-                                payment.type === 'withdrawal' || payment.type === 'payout' ? 'text-red-600' :
-                                'text-slate-900'
-                              }`}>
-                                {payment.type === 'deposit' ? '+' : payment.type === 'withdrawal' || payment.type === 'payout' ? '-' : ''}
-                                {payment.amount.toLocaleString()} kr
-                              </div>
-                              <div className={`text-xs ${
-                                payment.status === 'completed' ? 'text-green-600' :
-                                payment.status === 'failed' ? 'text-red-600' :
-                                payment.status === 'processing' ? 'text-yellow-600' :
-                                'text-slate-500'
-                              }`}>
-                                {payment.status === 'completed' ? 'Fuldført' :
-                                 payment.status === 'failed' ? 'Fejlet' :
-                                 payment.status === 'processing' ? 'Behandles' :
-                                 payment.status === 'pending' ? 'Afventer' :
-                                 'Annulleret'}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                        
-                        {paymentHistory.length === 0 && (
-                          <div className="px-6 py-8 text-center text-slate-500">
-                            Ingen transaktioner endnu
-                          </div>
-                        )}
-                        
-                        {paymentHistory.length > 20 && (
-                          <div className="px-6 py-4 text-center">
-                            <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                              Vis alle {paymentHistory.length} transaktioner
-                            </button>
-                          </div>
-                        )}
-                      </div>
                     </div>
                   </div>
                 )}

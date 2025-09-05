@@ -1,6 +1,7 @@
 'use client'
 
-import { mockRaffles } from '@/lib/mockData'
+import { useState, useEffect } from 'react'
+import { raffleServiceDB } from '@/lib/raffleServiceDB'
 import RaffleCarousel from '@/components/RaffleCarousel'
 import PremiumHeader from '@/components/PremiumHeader'
 import PremiumFooter from '@/components/PremiumFooter'
@@ -10,8 +11,28 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 
 export default function Home() {
-  const activeRaffles = mockRaffles.filter(raffle => raffle.status === 'active').slice(0, 3)
-  const featuredRaffles = mockRaffles.filter(raffle => raffle.status === 'active').slice(0, 5)
+  const [activeRaffles, setActiveRaffles] = useState<any[]>([])
+  const [featuredRaffles, setFeaturedRaffles] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadRaffles = async () => {
+      try {
+        const raffles = await raffleServiceDB.getActiveRaffles()
+        setActiveRaffles(raffles.slice(0, 3))
+        setFeaturedRaffles(raffles.slice(0, 5))
+      } catch (error) {
+        console.error('Failed to load raffles:', error)
+        // Fallback to empty arrays
+        setActiveRaffles([])
+        setFeaturedRaffles([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadRaffles()
+  }, [])
 
   return (
     <div className="min-h-screen relative">
@@ -304,7 +325,24 @@ export default function Home() {
             viewport={{ once: true }}
             className="mb-12"
           >
-            <RaffleCarousel raffles={featuredRaffles} />
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                <p className="mt-4 text-slate-600">Indlæser lodtrækninger...</p>
+              </div>
+            ) : featuredRaffles.length > 0 ? (
+              <RaffleCarousel raffles={featuredRaffles} />
+            ) : (
+              <div className="text-center py-12 bg-white/80 backdrop-blur-sm rounded-2xl">
+                <div className="text-6xl mb-4">🎫</div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                  Ingen aktive lodtrækninger
+                </h3>
+                <p className="text-slate-600">
+                  Der er ingen aktive lodtrækninger lige nu. Kom tilbage senere!
+                </p>
+              </div>
+            )}
           </motion.div>
           
           {/* View All CTA */}
