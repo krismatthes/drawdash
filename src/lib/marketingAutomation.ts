@@ -203,42 +203,6 @@ class MarketingAutomationService {
     }
   }
 
-  // Evaluate automation conditions
-  private evaluateConditions(conditions: AutomationCondition[], userId: string, data: Record<string, any>): boolean {
-    if (conditions.length === 0) return true
-
-    return conditions.every(condition => {
-      const value = data[condition.field] || this.getUserField(userId, condition.field)
-      
-      switch (condition.operator) {
-        case 'equals':
-          return value === condition.value
-        case 'not_equals':
-          return value !== condition.value
-        case 'greater_than':
-          return Number(value) > Number(condition.value)
-        case 'less_than':
-          return Number(value) < Number(condition.value)
-        case 'contains':
-          return String(value).toLowerCase().includes(String(condition.value).toLowerCase())
-        default:
-          return false
-      }
-    })
-  }
-
-  // Get user field for condition evaluation (mock)
-  private getUserField(userId: string, field: string): any {
-    // In real implementation, fetch from database
-    const mockUserData: Record<string, any> = {
-      totalSpent: 1500,
-      totalTickets: 45,
-      loyaltyTier: 'silver',
-      daysSinceRegistration: 30,
-      daysSinceLastActivity: 2
-    }
-    return mockUserData[field]
-  }
 
   // Get all automation rules
   getAllRules(): AutomationRule[] {
