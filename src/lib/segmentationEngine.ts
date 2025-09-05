@@ -110,50 +110,6 @@ class SegmentationEngine {
     }
   }
 
-  // Get user field value for rule evaluation
-  private getUserFieldValue(user: CRMUser, field: string): any {
-    switch (field) {
-      case 'totalSpent':
-        return user.totalSpent
-      case 'totalTickets':
-        return user.totalTickets
-      case 'totalWinnings':
-        return user.totalWinnings
-      case 'loyaltyTier':
-        return user.loyaltyTier
-      case 'loyaltyPoints':
-        return user.loyaltyPoints
-      case 'crmSegment':
-        return user.crmSegment
-      case 'acquisitionChannel':
-        return user.acquisitionChannel
-      case 'city':
-        return user.city
-      case 'country':
-        return user.country
-      case 'registeredAt':
-        return user.registeredAt.getTime()
-      case 'lastActivity':
-        return user.lastActivity.getTime()
-      case 'daysSinceRegistration':
-        return Math.floor((Date.now() - user.registeredAt.getTime()) / (1000 * 60 * 60 * 24))
-      case 'daysSinceLastActivity':
-        return Math.floor((Date.now() - user.lastActivity.getTime()) / (1000 * 60 * 60 * 24))
-      case 'avgSpendPerTicket':
-        return user.totalTickets > 0 ? user.totalSpent / user.totalTickets : 0
-      case 'winRate':
-        return user.totalTickets > 0 ? (user.totalWinnings > 0 ? 1 : 0) * 100 : 0
-      case 'email':
-        return user.email
-      case 'firstName':
-        return user.firstName
-      case 'lastName':
-        return user.lastName
-      default:
-        console.warn('Unknown user field:', field)
-        return null
-    }
-  }
 
   // Calculate users for all segments
   calculateAllSegments(users: CRMUser[]): void {
@@ -492,30 +448,6 @@ class SegmentationEngine {
     }
   }
 
-  private evaluateRule(user: CRMUser, rule: SegmentRule): boolean {
-    const userValue = this.getUserFieldValue(user, rule.field)
-    
-    switch (rule.operator) {
-      case 'equals':
-        return userValue === rule.value
-      case 'not_equals':
-        return userValue !== rule.value
-      case 'greater_than':
-        return Number(userValue) > Number(rule.value)
-      case 'less_than':
-        return Number(userValue) < Number(rule.value)
-      case 'contains':
-        return String(userValue).toLowerCase().includes(String(rule.value).toLowerCase())
-      case 'not_contains':
-        return !String(userValue).toLowerCase().includes(String(rule.value).toLowerCase())
-      case 'in':
-        return Array.isArray(rule.value) && rule.value.includes(userValue)
-      case 'not_in':
-        return Array.isArray(rule.value) && !rule.value.includes(userValue)
-      default:
-        return false
-    }
-  }
 
   // Storage helpers
   private loadSegments(): void {

@@ -43,7 +43,7 @@ export interface PayoutRequest {
   processedBy?: string
   
   // Verification
-  kycStatus: 'pending' | 'verified' | 'rejected'
+  kycStatus: 'pending' | 'in_review' | 'approved' | 'rejected' | 'verified'
   verificationNotes?: string
   
   // Processing details
