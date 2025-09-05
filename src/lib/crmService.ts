@@ -489,6 +489,10 @@ export const crmService = new CRMService()
 
 // Quick access functions for common operations
 export const CRM = {
+  // General event tracking
+  trackEvent: (userId: string, event: string, properties: Record<string, any>) =>
+    crmService.trackEvent(userId, event, properties),
+  
   // Track common events
   trackPurchase: (userId: string, amount: number, raffleId: string) =>
     crmService.trackEvent(userId, 'purchase', { amount, raffleId, currency: 'DKK' }),
