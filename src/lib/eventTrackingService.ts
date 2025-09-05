@@ -282,9 +282,9 @@ class EventTrackingService {
   }
 
   // Get browser information
-  private getBrowserInfo(): { userAgent: string, deviceType: string, browser: string, os: string } {
+  private getBrowserInfo(): { userAgent: string, deviceType: 'desktop' | 'mobile' | 'tablet', browser: string, os: string } {
     if (typeof window === 'undefined') {
-      return { userAgent: '', deviceType: 'server', browser: '', os: '' }
+      return { userAgent: '', deviceType: 'desktop', browser: '', os: '' }
     }
 
     const userAgent = navigator.userAgent
