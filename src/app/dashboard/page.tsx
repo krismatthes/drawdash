@@ -109,7 +109,7 @@ export default function DashboardPage() {
               className="card-premium p-6 text-center"
             >
               <div className="flex items-center justify-center mb-4">
-                <TierBadge tier={user.loyaltyTier} size="large" />
+                <TierBadge tier={user.loyaltyTier} size="lg" />
               </div>
               <h3 className="text-lg font-semibold text-slate-900 mb-2">
                 Loyalty Status
@@ -125,7 +125,9 @@ export default function DashboardPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="card-premium p-6 text-center"
             >
-              <PointsDisplay points={user.points} size="large" className="mb-4" />
+              <div className="mb-4">
+                <PointsDisplay points={user.points} tier={user.loyaltyTier} size="lg" />
+              </div>
               <h3 className="text-lg font-semibold text-slate-900 mb-2">
                 Dine Points
               </h3>

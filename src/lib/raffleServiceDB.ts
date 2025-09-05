@@ -424,7 +424,7 @@ export class RaffleServiceDB {
         }
       })
 
-      return result._sum.totalAmount || 0
+      return Number(result._sum.totalAmount) || 0
     } catch (error) {
       console.error('Error getting total revenue:', error)
       return 0

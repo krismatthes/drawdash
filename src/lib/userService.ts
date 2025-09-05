@@ -21,21 +21,55 @@ export interface UpdateUserData {
 
 export class UserService {
   // Create new user
-  async createUser(userData: CreateUserData): Promise<User> {
-    const passwordHash = await bcrypt.hash(userData.password, 12)
-    
-    const user = await prisma.user.create({
-      data: {
-        email: userData.email,
-        passwordHash,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        phone: userData.phone,
-        dateOfBirth: userData.dateOfBirth,
-      }
-    })
+  async createUser(userData: CreateUserData): Promise<{ success: boolean; user?: User; error?: string }> {
+    try {
+      const passwordHash = await bcrypt.hash(userData.password, 12)
+      
+      const user = await prisma.user.create({
+        data: {
+          email: userData.email,
+          passwordHash,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          phone: userData.phone,
+          dateOfBirth: userData.dateOfBirth,
+        }
+      })
 
-    return user
+      return { success: true, user }
+    } catch (error) {
+      return { success: false, error: 'Failed to create user' }
+    }
+  }
+
+  // Authenticate user
+  async authenticateUser(email: string, password: string): Promise<{ success: boolean; user?: User; error?: string }> {
+    try {
+      const user = await this.findByEmail(email)
+      if (!user) {
+        return { success: false, error: 'User not found' }
+      }
+
+      const isValidPassword = await bcrypt.compare(password, user.passwordHash)
+      if (!isValidPassword) {
+        return { success: false, error: 'Invalid password' }
+      }
+
+      return { success: true, user }
+    } catch (error) {
+      return { success: false, error: 'Authentication failed' }
+    }
+  }
+
+  // Get user by ID
+  async getUserById(id: string): Promise<User | null> {
+    try {
+      return await prisma.user.findUnique({
+        where: { id }
+      })
+    } catch (error) {
+      return null
+    }
   }
 
   // Find user by email

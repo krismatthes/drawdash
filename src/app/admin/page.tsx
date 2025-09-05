@@ -423,7 +423,7 @@ export default function AdminDashboard() {
                     </Link>
                   </div>
                   <div className="space-y-3">
-                    {recentPurchases.map((purchase) => (
+                    {recentPurchases.map((purchase: any) => (
                       <div
                         key={purchase.id}
                         className="flex items-center justify-between p-3 bg-slate-50 rounded-md"

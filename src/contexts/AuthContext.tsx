@@ -104,10 +104,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           firstName: result.user.firstName,
           lastName: result.user.lastName,
           isAdmin: result.user.isAdmin,
-          phone: result.user.phone,
-          loyaltyTier: result.user.loyaltyTier,
+          phone: result.user.phone || undefined,
+          loyaltyTier: result.user.loyaltyTier as 'gold' | 'silver' | 'bronze' | 'diamond',
           points: result.user.points,
-          totalSpent: result.user.totalSpent
+          totalSpent: Number(result.user.totalSpent)
         }
         
         setUser(user)
@@ -152,10 +152,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           firstName: result.user.firstName,
           lastName: result.user.lastName,
           isAdmin: result.user.isAdmin,
-          phone: result.user.phone,
-          loyaltyTier: result.user.loyaltyTier,
+          phone: result.user.phone || undefined,
+          loyaltyTier: result.user.loyaltyTier as 'gold' | 'silver' | 'bronze' | 'diamond',
           points: result.user.points,
-          totalSpent: result.user.totalSpent
+          totalSpent: Number(result.user.totalSpent)
         }
         
         setUser(user)

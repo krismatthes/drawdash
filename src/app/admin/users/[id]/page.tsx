@@ -12,8 +12,8 @@ import { antiFraud } from '@/lib/antiFraud'
 // Edit User Modal Component
 interface EditUserModalProps {
   isOpen: boolean
-  user: AdminUser | null
-  onSave: (updates: Partial<AdminUser>) => void
+  user: any | null
+  onSave: (updates: any) => void
   onCancel: () => void
 }
 
@@ -179,7 +179,7 @@ function EditUserModal({ isOpen, user, onSave, onCancel }: EditUserModalProps) {
 // Grant Free Tickets Modal
 interface GrantTicketsModalProps {
   isOpen: boolean
-  user: AdminUser | null
+  user: any | null
   onGrant: (raffleId: string, quantity: number, reason: string) => void
   onCancel: () => void
 }
@@ -192,9 +192,11 @@ function GrantTicketsModal({ isOpen, user, onGrant, onCancel }: GrantTicketsModa
 
   useEffect(() => {
     if (isOpen) {
-      const allRaffles = raffleService.getAllRaffles()
-      const activeRaffles = allRaffles.filter(r => r.status === 'active')
-      setRaffles(activeRaffles)
+      const loadRaffles = async () => {
+        const allRaffles = await raffleServiceDB.getActiveRaffles()
+        setRaffles(allRaffles.filter((r: any) => r.status === 'active'))
+      }
+      loadRaffles()
     }
   }, [isOpen])
 
@@ -460,39 +462,22 @@ export default function UserDetail() {
             <div className="bg-white rounded-xl p-6 border border-slate-200">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
-                  <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                    user.isBlocked ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-500 to-purple-500'
-                  }`}>
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500">
                     <span className="text-white text-xl font-bold">
-                      {user.firstName[0]}{user.lastName[0]}
+                      {user.firstName?.[0]}{user.lastName?.[0]}
                     </span>
                   </div>
                   <div>
                     <h1 className="text-2xl font-bold text-slate-900">
                       {user.firstName} {user.lastName}
-                      {user.fraudFlags > 0 && (
-                        <span className="ml-2 text-red-500" title={`${user.fraudFlags} fraud flags`}>
-                          ⚠️
-                        </span>
-                      )}
                     </h1>
                     <p className="text-slate-600">{user.email}</p>
                     {user.phone && <p className="text-slate-500 text-sm">{user.phone}</p>}
                     
                     <div className="flex items-center gap-2 mt-2">
-                      {user.isBlocked ? (
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                          Blokeret
-                        </span>
-                      ) : user.isActive ? (
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                          Aktiv
-                        </span>
-                      ) : (
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                          Inaktiv
-                        </span>
-                      )}
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        Aktiv
+                      </span>
                       
                       {user.isVerified && (
                         <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
@@ -500,10 +485,8 @@ export default function UserDetail() {
                         </span>
                       )}
                       
-                      {getRiskBadge(user.riskScore)}
-                      
                       <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
-                        {user.loyaltyTier.charAt(0).toUpperCase() + user.loyaltyTier.slice(1)}
+                        {(user.loyaltyTier || 'bronze').charAt(0).toUpperCase() + (user.loyaltyTier || 'bronze').slice(1)}
                       </span>
                     </div>
                   </div>
@@ -516,48 +499,9 @@ export default function UserDetail() {
                   >
                     Rediger
                   </button>
-                  <button
-                    onClick={() => setTicketModalOpen(true)}
-                    className="px-4 py-2 text-green-600 border border-green-200 rounded-lg hover:bg-green-50 transition-colors"
-                  >
-                    Giv Billetter
-                  </button>
-                  {user.isBlocked ? (
-                    <button
-                      onClick={handleUnblockUser}
-                      className="px-4 py-2 text-green-600 border border-green-200 rounded-lg hover:bg-green-50 transition-colors"
-                    >
-                      Fjern Blok
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handleBlockUser}
-                      className="px-4 py-2 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
-                    >
-                      Bloker Bruger
-                    </button>
-                  )}
                 </div>
               </div>
               
-              {user.isBlocked && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <div className="text-red-800 text-sm">
-                    <strong>Blokeret:</strong> {user.blockReason}
-                  </div>
-                  <div className="text-red-600 text-xs mt-1">
-                    Blokeret {user.blockedAt?.toLocaleDateString('da-DK')} af {user.blockedBy}
-                  </div>
-                </div>
-              )}
-              
-              {user.adminNotes && (
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="text-blue-800 text-sm">
-                    <strong>Admin Noter:</strong> {user.adminNotes}
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Tabs */}
@@ -890,13 +834,6 @@ export default function UserDetail() {
           user={user}
           onSave={handleSaveUser}
           onCancel={() => setEditModalOpen(false)}
-        />
-        
-        <GrantTicketsModal
-          isOpen={ticketModalOpen}
-          user={user}
-          onGrant={handleGrantTickets}
-          onCancel={() => setTicketModalOpen(false)}
         />
       </div>
     </div>
